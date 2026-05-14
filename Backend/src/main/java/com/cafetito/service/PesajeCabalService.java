@@ -44,7 +44,6 @@ public class PesajeCabalService {
                     dto.setIdCuenta(c.getIdCuenta());
                     dto.setFechaEnvio(c.getFechaCreacion());
                     dto.setEstadoCuenta(c.getEstadoCuenta().name());
-                    // Asumimos "kg" por defecto si no tienes un campo global de medida en la cuenta
                     dto.setMedidaPeso("kg");
                     return dto;
                 }).collect(Collectors.toList());
@@ -58,7 +57,6 @@ public class PesajeCabalService {
             dto.setIdParcialidad(p.getIdParcialidad());
             dto.setTipoMedida(p.getTipoDeMedida());
             dto.setPesoBascula(p.getPesoBascula());
-            // Si la base de datos tiene una fecha de peso, la enviamos, sino null
             dto.setFechaPeso(p.getPesoBascula() != null ? LocalDateTime.now() : null);
             dto.setDetalle(p.getDetalle());
 
@@ -74,7 +72,7 @@ public class PesajeCabalService {
 
     @Transactional
     public void actualizarPesoParcialidad(Long idParcialidad, ActualizarPesoRequestDTO request) {
-        // 1. ESQUEMA AGRICULTOR: Actualizar Parcialidad Original
+        // 1. ESQUEMA AGRICULTOR: Actualizar Parcialidad con el peso de báscula
         Parcialidad p = parcialidadRepository.findById(idParcialidad)
                 .orElseThrow(() -> new RuntimeException("Parcialidad no encontrada"));
 
@@ -83,50 +81,49 @@ public class PesajeCabalService {
         p.setDetalle("Pesaje Realizado");
         parcialidadRepository.save(p);
 
-        // 2. ESQUEMA PESO_CABAL: Insertar auditoría de báscula
+        // 2. ESQUEMA PESO_CABAL: Auditoría de báscula
         ParcialidadBascula pb = new ParcialidadBascula();
         pb.setIdParcialidadRef(p.getIdParcialidad());
         pb.setPesoBascula(request.getPesoObtenido());
-        pb.setPesoEnKg(request.getPesoObtenido()); // Ajustar si hay conversión
+        pb.setPesoEnKg(request.getPesoObtenido());
         pb.setFechaPeso(LocalDateTime.now());
-        pb.setIdUsuarioPesaje(1L); // Aquí iría el ID del usuario logueado
+        pb.setIdUsuarioPesaje(1L);
         parcialidadBasculaRepository.save(pb);
 
-        // 3. ESQUEMA PESO_CABAL: Insertar registro de Boleta (FA03)
+        // 3. ESQUEMA PESO_CABAL: Generar Boleta con Snapshot de datos
         Boleta b = new Boleta();
-        b.setIdParcialidadBascula(pb.getId()); // FK a la tabla anterior
+        b.setIdParcialidadBascula(pb.getId());
         b.setPesoObtenido(request.getPesoObtenido());
         b.setFechaBoleta(LocalDateTime.now());
         b.setIdUsuarioBoleta(1L);
 
-        // Guardamos un "Snapshot" (foto del momento) de placa y CUI
-        // Esto es vital si el transporte cambia en el futuro, la boleta queda intacta
         transporteRepository.findById(p.getIdTransporte()).ifPresent(t -> b.setPlacaSnapshot(t.getPlaca()));
         transportistaRepository.findById(p.getIdTransportista()).ifPresent(ts -> b.setCuiSnapshot(ts.getCui()));
 
         boletaRepository.save(b);
 
-        // 4. ESQUEMA BENEFICIO: Actualizar la Cuenta Global
+        // 4. ESQUEMA BENEFICIO: Lógica de Estado de la Cuenta
         Cuenta c = p.getIdCuenta();
+        if (c == null) return; // Seguridad en caso de parcialidad huérfana
 
-        // Actualizamos el acumulado en la cuenta
-        Double nuevoTotal = (c.getPesoTotalObtenido() != null ? c.getPesoTotalObtenido() : 0.0) + request.getPesoObtenido();
-        c.setPesoTotalObtenido(nuevoTotal);
+        // Actualizar el acumulado de la cuenta
+        Double pesoActual = c.getPesoTotalObtenido() != null ? c.getPesoTotalObtenido() : 0.0;
+        c.setPesoTotalObtenido(pesoActual + request.getPesoObtenido());
 
-        // --- NUEVA LÓGICA: DETECCIÓN DE FIN DE PESAJE ---
+        // --- RECUENTO DINÁMICO DE PARCIALIDADES ---
+        List<Parcialidad> todas = parcialidadRepository.buscarPorIdCuenta(c.getIdCuenta());
+        long totalCamiones = todas.size();
 
-        // Contamos cuántas parcialidades en total tiene esta cuenta
-        long totalParcialidades = parcialidadRepository.buscarPorIdCuenta(c.getIdCuenta()).size();
-
-        // Contamos cuántas de esas parcialidades ya tienen un peso registrado en báscula
-        long pesajesCompletados = parcialidadRepository.buscarPorIdCuenta(c.getIdCuenta()).stream()
-                .filter(p_aux -> p_aux.getPesoBascula() != null)
+        // Contamos las que ya tienen peso, incluyendo explícitamente la actual para evitar errores de caché
+        long camionesConPeso = todas.stream()
+                .filter(par -> par.getPesoBascula() != null || par.getIdParcialidad().equals(idParcialidad))
                 .count();
 
-        // Validamos: Si ya se pesaron todas, finalizamos. Si no, solo iniciamos.
-        if (pesajesCompletados == totalParcialidades) {
+        // Si ya se pesaron todos los camiones de esta cuenta
+        if (camionesConPeso >= totalCamiones) {
             c.setEstadoCuenta(EstadoCuenta.PESAJE_FINALIZADO);
         } else if (c.getEstadoCuenta() == EstadoCuenta.CUENTA_ABIERTA) {
+            // Si es el primer camión, pasa de Abierta a Iniciado
             c.setEstadoCuenta(EstadoCuenta.PESAJE_INICIADO);
         }
 
