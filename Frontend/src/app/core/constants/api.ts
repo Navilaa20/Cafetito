@@ -1,6 +1,9 @@
+// ✅ Importamos SIEMPRE el de desarrollo, Angular lo cambiará en el build de Render
 import { environment } from '../../../environments/environment';
 
+// ✅ Dejamos que 'base' tome el valor dinámico
 const base = environment.apiUrl;
+
 export const AUTH_API_URL = `${base}/api/auth`;
 export const TRANSPORTISTA_API_URL = `${base}/api/transportistas`;
 export const TRANSPORTE_API_URL = `${base}/api/transportes`;
