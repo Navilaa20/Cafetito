@@ -2,6 +2,8 @@ package com.cafetito.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import java.util.List;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -46,6 +48,16 @@ public class Transportista {
     @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "transportista_transporte",
+            schema = "agricultor", // Especificamos el esquema
+            joinColumns = @JoinColumn(name = "id_transportista"),
+            inverseJoinColumns = @JoinColumn(name = "id_transporte")
+    )
+
+    private List<Transporte> transportes = new java.util.ArrayList<>();
+
     public Transportista() {}
 
     // --- GETTERS Y SETTERS ---
@@ -80,4 +92,7 @@ public class Transportista {
     public void setFechaRegistro(LocalDateTime fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
     }
+
+    public List<Transporte> getTransportes() { return transportes; }
+    public void setTransportes(List<Transporte> transportes) { this.transportes = transportes; }
 }

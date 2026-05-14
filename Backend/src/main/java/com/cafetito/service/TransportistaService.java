@@ -9,10 +9,10 @@ import com.cafetito.exception.EstadoTransportistaIgualException;
 import com.cafetito.exception.LicenciaVencidaException;
 import com.cafetito.exception.TransportistaMenorDeEdadException;
 import com.cafetito.exception.TransportistaNoEncontradoException;
-import com.cafetito.repository.CuentaRepository;
 import com.cafetito.repository.TransportistaRepository;
 import com.cafetito.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,12 +29,14 @@ public class TransportistaService {
     private final TransportistaRepository repository;
     private final UsuarioRepository usuarioRepository;
 
+
     public TransportistaService(TransportistaRepository repository,
                                 UsuarioRepository usuarioRepository) {
         this.repository = repository;
-        this.usuarioRepository = usuarioRepository; //
+        this.usuarioRepository = usuarioRepository;
     }
 
+    @Transactional
     public TransportistaResponseDTO crearTransportista(TransportistaRequestDTO dto, Long idUsuario) {
         String cuiNormalizado = normalizarCui(dto.getCui());
         if (cuiNormalizado == null || cuiNormalizado.length() != 13 || !cuiNormalizado.matches("\\d{13}")) {

@@ -47,7 +47,6 @@ public class ParcialidadAgricultorService {
         }
 
         double pesoConvertido = dto.getPeso().doubleValue();
-
         if (pesoConvertido < PESO_MINIMO) {
             throw new IllegalArgumentException("El valor minimo es 1");
         }
@@ -57,11 +56,22 @@ public class ParcialidadAgricultorService {
         p.setIdCuenta(null);
         p.setIdTransporte(Long.parseLong(dto.getIdTransporte()));
         p.setIdTransportista(dto.getIdTransportista());
+
+        // ✅ CORRECCIÓN 1: Asegurarnos de poblar todas las columnas de peso
         p.setPesoEnviado(pesoConvertido);
+        p.setPesoDeclarado(pesoConvertido); // Añade esto a tu Entidad Parcialidad si no existe
+        p.setPesoEnKg(pesoConvertido);      // Añade esto a tu Entidad Parcialidad si no existe
+
         p.setTipoDeMedida(dto.getTipoDeMedida() != null ? dto.getTipoDeMedida().trim() : null);
         p.setAceptado(null);
 
         Parcialidad saved = parcialidadRepository.save(p);
+
+        // ✅ CORRECCIÓN 2: Actualizar el contador del padre (Pesaje)
+        // Sumamos +1 a la cantidad de parcialidades asociadas a este pesaje
+        int cantidadActual = pesaje.getCantidadParcialidades() != null ? pesaje.getCantidadParcialidades() : 0;
+        pesaje.setCantidadParcialidades(cantidadActual + 1);
+        pesajeRepository.save(pesaje);
 
         return toDTO(saved);
     }

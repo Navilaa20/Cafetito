@@ -109,7 +109,7 @@ public class PesajeCabalService {
         // 4. ESQUEMA BENEFICIO: Actualizar la Cuenta Global
         Cuenta c = p.getIdCuenta();
 
-        // Actualizamos el acumulado en la cuenta (image_1e0c35.png -> peso_total_obtenido)
+        // Actualizamos el acumulado en la cuenta
         Double nuevoTotal = (c.getPesoTotalObtenido() != null ? c.getPesoTotalObtenido() : 0.0) + request.getPesoObtenido();
         c.setPesoTotalObtenido(nuevoTotal);
 
