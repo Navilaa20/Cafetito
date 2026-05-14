@@ -30,7 +30,7 @@ public class Pesaje {
     @Column(name = "pesaje_acumulado")
     private BigDecimal pesajeAcumulado = BigDecimal.ZERO;
 
-    @Column(name = "cantidad_parcialidades")
+    @Column(name = "cant_parcialidades")
     private Integer cantidadParcialidades = 0;
 
     private String estado;

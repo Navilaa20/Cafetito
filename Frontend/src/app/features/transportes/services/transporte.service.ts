@@ -6,7 +6,7 @@ import { TRANSPORTE_API_URL } from '../../../core/constants/api';
 
 @Injectable({ providedIn: 'root' })
 export class TransporteService {
-  private apiUrl = 'http://localhost:8080/api';
+  // ✅ ELIMINAMOS la url de localhost y usamos la constante 'base'
   constructor(private http: HttpClient) {}
 
   crearTransporte(dto: TransporteRequest): Observable<TransporteResponse> {
@@ -17,25 +17,20 @@ export class TransporteService {
     return this.http.get<TransporteResponse[]>(TRANSPORTE_API_URL);
   }
 
+  // ✅ USAMOS LA RUTA CORRECTA PARA CATÁLOGOS DESDE EL BACKEND
   getMarcas(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/catalogos/marcas`);
+    return this.http.get<any[]>(`${TRANSPORTE_API_URL.replace('/transportes', '/catalogos/marcas')}`);
   }
 
   getColores(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/catalogos/colores`);
+    return this.http.get<any[]>(`${TRANSPORTE_API_URL.replace('/transportes', '/catalogos/colores')}`);
   }
 
   getLinea(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/catalogos/lineas`);
-  }
-
-// Si implementaste el filtro por marca:
-  getLineasPorMarca(marcaId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/catalogos/marcas/${marcaId}/lineas`);
+    return this.http.get<any[]>(`${TRANSPORTE_API_URL.replace('/transportes', '/catalogos/lineas')}`);
   }
 
   getTiposPlaca(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/catalogos/tipos-placa`);
+    return this.http.get<any[]>(`${TRANSPORTE_API_URL.replace('/transportes', '/catalogos/tipos-placa')}`);
   }
-
 }

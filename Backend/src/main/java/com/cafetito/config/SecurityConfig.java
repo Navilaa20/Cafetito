@@ -61,7 +61,7 @@ public class SecurityConfig {
         // ✅ AGREGAMOS LA URL DE TU FRONTEND EN PRODUCCIÓN
         config.setAllowedOrigins(List.of(
                 "http://localhost:4200",
-                "https://cafetito-front.onrender.com" // 👈 Pegado aquí
+                "https://cafetito-front.onrender.com"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
