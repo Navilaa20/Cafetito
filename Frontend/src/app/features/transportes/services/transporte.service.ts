@@ -33,4 +33,8 @@ export class TransporteService {
   getTiposPlaca(): Observable<any[]> {
     return this.http.get<any[]>(`${TRANSPORTE_API_URL.replace('/transportes', '/catalogos/tipos-placa')}`);
   }
+
+  getLineasPorMarca(marcaId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${TRANSPORTE_API_URL.replace('/transportes', `/catalogos/marcas/${marcaId}/lineas`)}`);
+  }
 }
