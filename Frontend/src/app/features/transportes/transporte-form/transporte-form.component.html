@@ -1,0 +1,111 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Crear Transporte</h3>
+      <button type="button" class="btn-close" (click)="onCancel()" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="modal-body">
+        @if (errorMessage) {
+          <div class="alert alert-error" role="alert">
+            <span class="alert-icon">&#9888;</span>
+            {{ errorMessage }}
+          </div>
+        }
+
+        <div class="form-grid">
+
+            <div class="field field-full">
+                <label for="idTipoPlaca">Tipo Placa</label>
+
+                <select id="idTipoPlaca" formControlName="idTipoPlaca">
+                    <option [value]="null" disabled>Seleccione...</option>
+
+                    @for (tp of tiposPlaca; track tp.id) {
+                        <option [value]="tp.id">{{ tp.codigo }} - {{ tp.descripcion }}</option>
+                    }
+                </select>
+            </div>
+
+          <div class="field">
+            <label for="numeroPlaca">Numero Placa</label>
+            <input
+              id="numeroPlaca"
+              type="text"
+              formControlName="numeroPlaca"
+              placeholder="000AAA"
+              autocomplete="off"
+              maxlength="6"
+            />
+            @if (numeroPlacaError) {
+              <span class="field-error">{{ numeroPlacaError }}</span>
+            }
+          </div>
+
+            <div class="field">
+                <label for="marca">Marca</label>
+                <select id="marca" formControlName="marca">
+                    <option value="" disabled>Seleccione...</option>
+                    @for (m of marcas; track m.id) {
+                        <option [value]="m.id">{{ m.nombre }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="color">Color</label>
+                <select id="color" formControlName="color">
+                    <option value="" disabled>Seleccione...</option>
+                    @for (c of colores; track c.id) {
+                        <option [value]="c.id">{{ c.nombre }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="color">Linea</label>
+                <select id="linea" formControlName="linea">
+                    <option [value]="null" disabled>Seleccione...</option>
+                    @for (l of lineas; track l.id) {
+                        <option [value]="l.id">{{ l.nombre }}</option>
+                    }
+                </select>
+            </div>
+
+          <div class="field">
+            <label for="modelo">Modelo (anio)</label>
+            <input
+              id="modelo"
+              type="number"
+              formControlName="modelo"
+              [placeholder]="'Ej: ' + anioActual"
+              [min]="1980"
+              [max]="anioActual"
+            />
+            @if (modeloError) {
+              <span class="field-error">{{ modeloError }}</span>
+            }
+          </div>
+
+          <div class="field field-full">
+            <label for="observaciones">Observaciones</label>
+            <textarea
+              id="observaciones"
+              formControlName="observaciones"
+              placeholder="Opcional"
+              rows="2"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="onCancel()">Cancelar</button>
+        <button type="submit" class="btn-submit" [disabled]="!canSubmit">
+          {{ loading ? 'Guardando...' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

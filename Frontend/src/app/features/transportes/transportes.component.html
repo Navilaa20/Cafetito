@@ -1,0 +1,76 @@
+<div class="transportes-container">
+    <div class="section-header">
+        <div>
+            <h2>Gestion de Transportes</h2>
+            <p class="section-subtitle">Panel del Agricultor — Sistema Cafetito</p>
+        </div>
+        <button class="btn-create" (click)="abrirFormulario()">
+            <span class="btn-icon">+</span>
+            Crear Transporte
+        </button>
+    </div>
+
+    @if (successMessage) {
+        <div class="alert alert-success" role="status">
+            <span class="alert-icon">✓</span>
+            {{ successMessage }}
+        </div>
+    }
+
+    @if (loading) {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando transportes...</p>
+        </div>
+    }
+
+    @if (!loading && transportes.length > 0) {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Placa</th>
+                    <th>Marca</th>
+                    <th>Color</th>
+                    <th>Linea</th>
+                    <th>Modelo</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (t of transportes; track t.id) {
+                        <tr>
+                            <td class="mono">{{ t.placa }}</td>
+
+                            <td>{{ getNombreMarca(t.idMarca) }}</td>
+                            <td>{{ getNombreColor(t.idColor) }}</td>
+                            <td>{{ getNombreLinea(t.linea) }}</td>
+
+                            <td>{{ t.modelo }}</td>
+                            <td>
+                <span class="badge" [class.badge-active]="t.activo" [class.badge-inactive]="!t.activo">
+                  {{ t.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (!loading && transportes.length === 0) {
+        <div class="empty-state">
+            <div class="empty-icon">🚛</div>
+            <h3>No existen registros</h3>
+            <p>Comience registrando un nuevo transporte usando el boton de arriba.</p>
+        </div>
+    }
+
+    @if (showForm) {
+        <app-transporte-form
+                (cerrar)="cerrarFormulario()"
+                (creado)="onTransporteCreado()"
+        />
+    }
+</div>

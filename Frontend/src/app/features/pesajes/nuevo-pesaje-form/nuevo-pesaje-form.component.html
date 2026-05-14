@@ -1,0 +1,63 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Crear Nuevo Pesaje</h3>
+            <button type="button" class="btn-close" (click)="cerrar.emit()">&times;</button>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="modal-body">
+                @if (errorMessage) {
+                    <div class="alert alert-error">
+                        <span class="alert-icon">⚠️</span>
+                        {{ errorMessage }}
+                    </div>
+                }
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label>Estado</label>
+                        <input type="text" [value]="estadoFijo" disabled class="input-readonly" />
+                    </div>
+
+                    <div class="field">
+                        <label>Fecha Creación</label>
+                        <input type="text" [value]="fechaHoy" disabled class="input-readonly" />
+                    </div>
+
+                    <div class="field field-full">
+                        <label for="idMedida">Unidad de Medida</label>
+                        <select id="idMedida" formControlName="idMedida">
+                            <option [value]="null" disabled>Seleccione una medida</option>
+                            @for (m of medidas; track m.id) {
+                                <option [value]="m.id">{{ m.nombre }} ({{ m.abreviatura }})</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="field field-full">
+                        <label for="pesoTotal">Peso Total Proyectado</label>
+                        <input
+                                id="pesoTotal"
+                                type="number"
+                                formControlName="pesoTotalActual"
+                                placeholder="Ingrese el peso proyectado"
+                        />
+                        @if (form.get('pesoTotalActual')?.touched && form.get('pesoTotalActual')?.invalid) {
+                            <span class="field-error">El peso debe ser mayor a 0</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="cerrar.emit()">Cancelar</button>
+                <button type="submit" class="btn-submit" [disabled]="form.invalid || loadingSubmit">
+                    {{ loadingSubmit ? 'Creando...' : 'Crear' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

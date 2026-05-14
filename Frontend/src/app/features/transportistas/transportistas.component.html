@@ -1,0 +1,82 @@
+<div class="transportistas-container">
+  <div class="section-header">
+    <div>
+      <h2>Gestion de Transportistas</h2>
+      <p class="section-subtitle">Panel del Agricultor — Sistema Cafetito</p>
+    </div>
+    <button class="btn-create" (click)="abrirFormulario()">
+      <span class="btn-icon">+</span>
+      Crear Transportista
+    </button>
+  </div>
+
+  @if (successMessage) {
+    <div class="alert alert-success" role="status">
+      <span class="alert-icon">✓</span>
+      {{ successMessage }}
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando transportistas...</p>
+    </div>
+  }
+
+  @if (!loading && transportistas.length > 0) {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>CUI</th>
+            <th>Nombre</th>
+            <th>Tipo Licencia</th>
+            <th>Vencimiento Licencia</th>
+            <th>Estado</th>
+            <th>Disponible</th>
+            <th>Pesaje Asociado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of transportistas; track t.idTransportista) {
+            <tr>
+              <td class="mono">{{ t.cui }}</td>
+              <td>{{ t.nombreCompleto }}</td>
+              <td>
+                <span class="badge badge-license">{{ t.tipoLicencia }}</span>
+              </td>
+              <td>{{ t.fechaVencimientoLicencia | date:'shortDate' }}</td>
+              <td>
+                <span class="badge" [class.badge-active]="t.estado" [class.badge-inactive]="!t.estado">
+                  {{ t.estado ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [class.badge-available]="t.disponible" [class.badge-unavailable]="!t.disponible">
+                  {{ t.disponible ? 'Si' : 'No' }}
+                </span>
+              </td>
+              <td class="mono">{{ t.pesajeAsociado != null ? t.pesajeAsociado : '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (!loading && transportistas.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">🚛</div>
+      <h3>No existen registros</h3>
+      <p>Comience registrando un nuevo transportista usando el boton de arriba.</p>
+    </div>
+  }
+
+  @if (showForm) {
+    <app-transportista-form
+      (cerrar)="cerrarFormulario()"
+      (creado)="onTransportistaCreado()"
+    />
+  }
+</div>

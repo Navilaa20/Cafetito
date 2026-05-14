@@ -1,0 +1,101 @@
+<div class="agricultores-container">
+    <div class="section-header">
+        <h2>Directorio de Agricultores</h2>
+        <p class="section-subtitle">Gestión de agricultores registrados en el beneficio.</p>
+    </div>
+
+    @if (vistaActual === 'BANDEJA') {
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>Buscar por NIT</label>
+                <input type="text" [(ngModel)]="filtroNit" placeholder="Ingrese NIT..." (keyup.enter)="buscarPorNit()">
+            </div>
+            <div class="filter-actions">
+                <button class="btn-search" (click)="buscarPorNit()" [disabled]="loading">
+                    {{ loading ? 'Buscando...' : 'Buscar Agricultor' }}
+                </button>
+                <button class="btn-clear" (click)="limpiarFiltros()">Limpiar</button>
+            </div>
+        </div>
+
+        @if (loading) {
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Cargando registros...</p>
+            </div>
+        } @else if (agricultores.length === 0) {
+            <div class="empty-state">
+                <div class="empty-icon">👥</div>
+                <h3>Sin registros</h3>
+                <p>No existen registros de agricultores que coincidan con la búsqueda.</p>
+            </div>
+        } @else {
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>NIT</th>
+                        <th>Nombre / Usuario</th>
+                        <th>Estado</th>
+                        <th>Observaciones</th>
+                        <th>Fecha Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        @for (a of agricultores; track a.nitAgricultor) {
+                            <tr>
+                                <td class="mono">{{ a.nitAgricultor }}</td>
+                                <td style="font-weight: 600;">{{ a.nombre }}</td>
+                                <td>
+                                    <span class="badge" [ngClass]="a.activo ? 'badge-info' : 'badge-warning'">
+                                        {{ a.activo ? 'Activo' : 'Inactivo' }}
+                                    </span>
+                                </td>
+                                <td>{{ a.observaciones || 'Sin observaciones' }}</td>
+                                <td>{{ a.fecha | date:'dd/MM/yyyy' }}</td>
+                                <td class="actions-cell">
+                                    <button class="btn-action" (click)="verDetalle(a.nitAgricultor)">
+                                        Ver Detalle
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+
+    @if (vistaActual === 'DETALLE' && detalleAgricultor) {
+        <div class="detail-header">
+            <button class="btn-clear" (click)="regresar()" style="margin-bottom: 1rem;">
+                ← Regresar al listado
+            </button>
+        </div>
+
+        <div class="info-card">
+            <div class="info-card-header">
+                <h3>Resumen General: {{ detalleAgricultor.nombre }}</h3>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">NIT / Identificador</span>
+                    <span class="info-value mono">{{ detalleAgricultor.nitAgricultor }}</span>
+                </div>
+                <div class="info-item highlight">
+                    <span class="info-label">Cuentas Registradas</span>
+                    <span class="info-value">{{ detalleAgricultor.cantidadCuentas }}</span>
+                </div>
+                <div class="info-item highlight">
+                    <span class="info-label">Transportes (Vehículos)</span>
+                    <span class="info-value">{{ detalleAgricultor.cantidadTransportes }}</span>
+                </div>
+                <div class="info-item highlight">
+                    <span class="info-label">Transportistas (Pilotos)</span>
+                    <span class="info-value">{{ detalleAgricultor.cantidadTransportistas }}</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>

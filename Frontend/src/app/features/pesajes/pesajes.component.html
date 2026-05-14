@@ -1,0 +1,79 @@
+<div class="pesajes-container">
+    <div class="section-header">
+        <div>
+            <h2>Gestión de Pesajes</h2>
+            <p class="section-subtitle">Panel del Agricultor — Sistema Cafetito</p>
+        </div>
+        <button class="btn-create" (click)="abrirFormulario()">
+            <span class="btn-icon">+</span>
+            Crear Pesaje
+        </button>
+    </div>
+
+    @if (showForm) {
+        <app-nuevo-pesaje-form
+                (cerrar)="cerrarFormulario()"
+                (creado)="onPesajeCreado()"
+        />
+    }
+
+
+    @if (showForm) {
+        <app-nuevo-pesaje-form
+                (cerrar)="cerrarFormulario()"
+                (creado)="onPesajeCreado()"
+        />
+    }
+
+    @if (loading) {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando pesajes...</p>
+        </div>
+    }
+
+    @if (!loading && pesajes.length > 0) {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Id Pesaje</th>
+                    <th>No. Cuenta</th>
+                    <th>Peso Total</th>
+                    <th>Cant. Parcialidades</th>
+                    <th>Fecha Envío</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (p of pesajes; track p.idPesaje) {
+                        <tr>
+                            <td class="mono">{{ p.idPesaje }}</td>
+                            <td>{{ p.idCuenta ?? '-' }}</td>
+                            <td>{{ p.pesoTotalActual }}</td>
+                            <td>{{ p.cantidadParcialidades }}</td>
+                            <td>{{ formatFecha(p.fechaCreacion) }}</td>
+                            <td>
+                                <span class="badge badge-active">{{ p.estadoPesaje }}</span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn-detail" (click)="verDetalle(p.idPesaje)">
+                                    Ver Detalle
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (!loading && pesajes.length === 0) {
+        <div class="empty-state">
+            <div class="empty-icon">📍</div>
+            <h3>{{ mensajeVacio }}</h3>
+            <p>No hay pesajes registrados para mostrar.</p>
+        </div>
+    }
+</div>

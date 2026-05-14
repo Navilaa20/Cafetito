@@ -1,0 +1,104 @@
+<div class="detalle-container">
+  <div class="section-header">
+    <div>
+      <h2>Detalle de Parcialidad</h2>
+      <p class="section-subtitle">Panel del Beneficio — Sistema Cafetito</p>
+    </div>
+    <button type="button" class="btn-back" (click)="regresar()">Regresar</button>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando detalle...</p>
+    </div>
+  }
+
+  @if (!loading && detalle) {
+    @if (successMessage) {
+      <div class="alert alert-success">{{ successMessage }}</div>
+    }
+    @if (errorMessage) {
+      <div class="alert alert-error">{{ errorMessage }}</div>
+    }
+
+    <div class="info-card">
+      <div class="info-row">
+        <span class="info-label">No. de Cuenta</span>
+        <span class="info-value mono">{{ detalle.idCuenta }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">ID Parcialidad</span>
+        <span class="info-value mono">{{ detalle.idParcialidad }}</span>
+      </div>
+      <div class="qr-row">
+        <span class="info-label">Codigo QR</span>
+        <img [src]="qrImageSrc" alt="QR" class="qr-image" />
+      </div>
+      @if (!showSegmentos) {
+        <button type="button" class="btn-ir" (click)="ir()">IR</button>
+      }
+    </div>
+
+    @if (showSegmentos && detalle.transporte) {
+      <div class="segmento">
+        <h3>Transporte</h3>
+        <div class="segmento-content">
+          <div class="info-row">
+            <span class="info-label">Placa</span>
+            <span class="info-value mono">{{ detalle.transporte.placa }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Estado</span>
+            <span class="info-value">{{ detalle.transporte.estado ? 'Activo' : 'Inactivo' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Observaciones</span>
+            <span class="info-value">{{ detalle.transporte.observaciones ?? '—' }}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (showSegmentos && detalle.transportista) {
+      <div class="segmento">
+        <h3>Transportista</h3>
+        <div class="segmento-content">
+          <div class="info-row">
+            <span class="info-label">CUI</span>
+            <span class="info-value mono">{{ detalle.transportista.cui }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Nombre</span>
+            <span class="info-value">{{ detalle.transportista.nombre }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Estado</span>
+            <span class="info-value">{{ detalle.transportista.estado ? 'Activo' : 'Inactivo' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Observaciones</span>
+            <span class="info-value">{{ detalle.transportista.observaciones ?? '—' }}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (showSegmentos && puedeRecibirRechazar) {
+      <div class="action-bar">
+        <button type="button" class="btn-recir" (click)="recibir()">
+          Recibir parcialidad
+        </button>
+        <button type="button" class="btn-rechazar" (click)="rechazar()">
+          Rechazar parcialidad
+        </button>
+      </div>
+    }
+  }
+
+  @if (!loading && !detalle) {
+    <div class="empty-state">
+      <h3>No existen registros</h3>
+    </div>
+  }
+</div>

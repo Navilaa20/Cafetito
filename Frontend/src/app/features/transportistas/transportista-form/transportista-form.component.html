@@ -1,0 +1,85 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Crear Transportista</h3>
+      <button type="button" class="btn-close" (click)="onCancel()" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="modal-body">
+        @if (errorMessage) {
+          <div class="alert alert-error" role="alert">
+            <span class="alert-icon">&#9888;</span>
+            {{ errorMessage }}
+          </div>
+        }
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="cui">CUI</label>
+            <input
+              id="cui"
+              type="text"
+              formControlName="cui"
+              placeholder="13 digitos sin guiones"
+              autocomplete="off"
+            />
+            @if (cuiError) {
+              <span class="field-error">{{ cuiError }}</span>
+            }
+          </div>
+
+          <div class="field field-full">
+            <label for="nombreCompleto">Nombre Completo</label>
+            <input
+              id="nombreCompleto"
+              type="text"
+              formControlName="nombreCompleto"
+              placeholder="Nombre y apellido (min. 2 palabras de 3+ caracteres)"
+              autocomplete="off"
+            />
+            @if (nombreError) {
+              <span class="field-error">{{ nombreError }}</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+            <input
+              id="fechaNacimiento"
+              type="date"
+              formControlName="fechaNacimiento"
+            />
+          </div>
+
+          <div class="field">
+            <label for="tipoLicencia">Tipo Licencia</label>
+            <input
+              id="tipoLicencia"
+              type="text"
+              formControlName="tipoLicencia"
+              placeholder="Ej: A, B, C"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field">
+            <label for="fechaVencimientoLicencia">Vencimiento de Licencia</label>
+            <input
+              id="fechaVencimientoLicencia"
+              type="date"
+              formControlName="fechaVencimientoLicencia"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="onCancel()">Cancelar</button>
+        <button type="submit" class="btn-submit" [disabled]="!canSubmit">
+          {{ loading ? 'Guardando...' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

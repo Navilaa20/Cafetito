@@ -1,0 +1,21 @@
+services:
+  backend:
+    build: ./Backend
+    container_name: cafetito-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      # Sobrescribimos con las credenciales de Railway
+      SPRING_DATASOURCE_URL: jdbc:postgresql://junction.proxy.rlwy.net:43570/railway
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: XXgXxhhEWFQtCcegiohiuXBvjUHkmVUn
+      JWT_SECRET: cafetito-secret-key-2025-mas-de-32-chars
+
+  frontend:
+    build: ./Frontend
+    container_name: cafetito-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend

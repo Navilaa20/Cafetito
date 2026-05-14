@@ -1,0 +1,51 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Cambiar Estado Cuenta</h3>
+            <button type="button" class="btn-close" (click)="onCancel()" aria-label="Cerrar">&times;</button>
+        </div>
+
+        @if (successMessage) {
+            <div class="modal-body">
+                <div class="alert alert-success">
+                    <span class="alert-icon">&#10003;</span>
+                    {{ successMessage }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-submit" (click)="onOk()">OK</button>
+            </div>
+        } @else {
+            <div class="modal-body">
+                @if (errorMessage) {
+                    <div class="alert alert-error">
+                        <span class="alert-icon">&#9888;</span>
+                        {{ errorMessage }}
+                    </div>
+                }
+
+                <div class="form-grid">
+                    <div class="field field-full">
+                        <label>No. de Cuenta</label>
+                        <input type="text" [value]="cuenta.idCuenta" readonly />
+                    </div>
+                    <div class="field field-full">
+                        <label>Estado Actual</label>
+                        <input type="text" [value]="estadoActualLabel" readonly />
+                    </div>
+                    <div class="field field-full">
+                        <label>Estado Nuevo</label>
+                        <input type="text" [value]="estadoNuevoLabel" readonly />
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" (click)="onCancel()">Cancelar</button>
+                <button type="button" class="btn-submit" [disabled]="loading" (click)="onSubmit()">
+                    {{ loading ? 'Guardando...' : 'Cambiar Estado' }}
+                </button>
+            </div>
+        }
+    </div>
+</div>

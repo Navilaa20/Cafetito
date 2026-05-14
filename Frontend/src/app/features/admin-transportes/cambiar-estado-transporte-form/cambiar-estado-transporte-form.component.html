@@ -1,0 +1,65 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Cambiar Estado Transporte</h3>
+      <button type="button" class="btn-close" (click)="onCancel()" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="modal-body">
+        @if (successMessage) {
+          <div class="alert alert-success" role="status">
+            <span class="alert-icon">&#10003;</span>
+            {{ successMessage }}
+          </div>
+        }
+        @if (errorMessage) {
+          <div class="alert alert-error" role="alert">
+            <span class="alert-icon">&#9888;</span>
+            {{ errorMessage }}
+          </div>
+        }
+
+        <div class="form-grid">
+          <div class="field field-full">
+            <label for="placa">Placa</label>
+            <input
+              id="placa"
+              type="text"
+              formControlName="placa"
+              readonly
+            />
+          </div>
+
+          <div class="field">
+            <label for="nuevoEstado">Estado</label>
+            <select id="nuevoEstado" formControlName="nuevoEstado">
+              <option [value]="true">Activo</option>
+              <option [value]="false">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="field field-full">
+            <label for="observaciones">Observaciones</label>
+            <textarea
+              id="observaciones"
+              formControlName="observaciones"
+              placeholder="Observaciones (obligatorio)"
+              rows="3"
+            ></textarea>
+            @if (form.get('observaciones')?.invalid && form.get('observaciones')?.touched) {
+              <span class="field-error">Las observaciones son obligatorias</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="onCancel()">Cancelar</button>
+        <button type="submit" class="btn-submit" [disabled]="!canSubmit">
+          {{ loading ? 'Actualizando...' : 'Actualizar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

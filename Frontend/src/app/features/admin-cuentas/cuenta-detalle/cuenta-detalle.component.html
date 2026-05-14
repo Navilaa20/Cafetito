@@ -1,0 +1,122 @@
+<div class="detalle-container">
+  <div class="section-header">
+    <div>
+      <h2>Detalle de Cuenta</h2>
+      <p class="section-subtitle">Panel del Beneficio — Sistema Cafetito</p>
+    </div>
+    <button type="button" class="btn-back" (click)="regresar()">Regresar</button>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando detalle...</p>
+    </div>
+  }
+
+  @if (!loading && detalle) {
+    <div class="info-card">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">No. de Cuenta</span>
+          <span class="info-value mono">{{ detalle.idCuenta }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Agricultor</span>
+          <span class="info-value mono">{{ detalle.nitAgricultor }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Estado Actual</span>
+          <span class="info-value">{{ estadoLabel(detalle.estadoCuenta) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Cantidad de Parcialidades</span>
+          <span class="info-value">{{ detalle.cantidadParcialidades }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Diferencia Total</span>
+          <span class="info-value">{{ detalle.diferenciaTotal }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Tolerancia</span>
+          <span class="info-value">{{ detalle.tolerancia }}%</span>
+        </div>
+        @if (detalle.resultadoTolerancia) {
+          <div class="info-item info-full">
+            <span class="info-label">Resultado Tolerancia</span>
+            <span class="info-value">{{ detalle.resultadoTolerancia }}</span>
+          </div>
+        }
+      </div>
+
+        @if (puedeCambiarEstado) {
+            <div class="action-bar">
+                <button type="button" class="btn-action" (click)="abrirCambiarEstado()">
+                    Cambiar Estado
+                </button>
+            </div>
+        }    </div>
+
+    <div class="table-section">
+      <h3>Parcialidades</h3>
+      @if (detalle.parcialidades && detalle.parcialidades.length) {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID Parcialidad</th>
+                <th>Placa Transporte</th>
+                <th>Nombre Transportista</th>
+                <th>Peso</th>
+                <th>Tipo de Medida</th>
+                <th>Fecha Recepcion</th>
+                <th>Detalle</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of detalle.parcialidades; track p.idParcialidad) {
+                <tr>
+                  <td class="mono">{{ p.idParcialidad }}</td>
+                  <td class="mono">{{ p.placaTransporte }}</td>
+                  <td>{{ p.nombreTransportista }}</td>
+                  <td>{{ p.pesoEnviado ?? '—' }}</td>
+                  <td>{{ p.tipoDeMedida ?? '—' }}</td>
+                  <td>{{ p.fechaRecepcionParcialidad ? (p.fechaRecepcionParcialidad | date:'short') : '—' }}</td>
+                  <td>{{ p.detalle ?? '—' }}</td>
+                  <td>
+                    @if (mostrarBotonVerDetalleParcialidad(p.aceptado)) {
+                      <button
+                        type="button"
+                        class="btn-action-sm"
+                        (click)="verDetalleParcialidad(p.idParcialidad)"
+                      >
+                        Ver detalle
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="empty-msg">No hay parcialidades.</p>
+      }
+    </div>
+  }
+
+  @if (!loading && !detalle) {
+    <div class="empty-state">
+      <h3>No existen registros</h3>
+    </div>
+  }
+
+  @if (showCambiarEstadoModal && detalle) {
+    <app-cambiar-estado-cuenta-form
+      [cuenta]="detalle"
+      (cerrar)="cerrarCambiarEstado()"
+      (actualizado)="onEstadoActualizado()"
+    />
+  }
+</div>

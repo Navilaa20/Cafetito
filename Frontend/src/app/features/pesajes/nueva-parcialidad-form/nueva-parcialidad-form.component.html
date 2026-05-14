@@ -1,0 +1,95 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Nueva Parcialidad</h3>
+            <button type="button" class="btn-close" (click)="onCerrar()" aria-label="Cerrar">&times;</button>
+        </div>
+
+        @if (successMessage) {
+            <div class="modal-body">
+                <div class="alert alert-success" role="status">
+                    <span class="alert-icon">&#10003;</span>
+                    {{ successMessage }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-submit" (click)="onCerrar()">OK</button>
+                </div>
+            </div>
+        } @else {
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                <div class="modal-body">
+                    @if (errorMessage) {
+                        <div class="alert alert-error" role="alert">
+                            <span class="alert-icon">&#9888;</span>
+                            {{ errorMessage }}
+                        </div>
+                    }
+
+                    <div class="form-grid">
+                        <div class="field field-full">
+                            <label [for]="'peso'">{{ pesoLabel }}</label>
+                            <input
+                                    id="peso"
+                                    type="number"
+                                    formControlName="peso"
+                                    [min]="1"
+                                    step="any"
+                                    placeholder="Minimo 1"
+                            />
+                            @if (pesoError) {
+                                <span class="field-error">{{ pesoError }}</span>
+                            }
+                        </div>
+
+                        <div class="field field-full">
+                            <label for="idTransporte">Transportes disponibles</label>
+                            <select id="idTransporte" formControlName="idTransporte">
+                                <option value="" disabled>Seleccione un Transporte</option>
+                                @for (t of transportes; track t.id) {
+                                    <option [value]="t.id">{{ t.placa }}</option>
+                                }
+                            </select>
+                            @if (!loadingTransportes && transportes.length === 0) {
+                                <span class="field-hint">{{ mensajeTransportesVacio }}</span>
+                            }
+                        </div>
+
+                        <div class="field field-full">
+                            <label for="idTransportista">Transportistas disponibles</label>
+                            <select id="idTransportista" formControlName="idTransportista">
+                                <option value="" disabled>Seleccione un Transportista</option>
+                                @for (tr of transportistas; track tr.idTransportista) {
+                                    <option [value]="tr.idTransportista">{{ tr.nombreCompleto }}</option>
+                                }
+                            </select>
+                            @if (!loadingTransportistas && transportistas.length === 0) {
+                                <span class="field-hint">{{ mensajeTransportistasVacio }}</span>
+                            }
+                        </div>
+
+
+
+
+                        <div class="field field-full">
+                            <label for="tipoDeMedida">Tipo de Medida</label>
+                            <input
+                                    id="tipoDeMedida"
+                                    type="text"
+                                    formControlName="tipoDeMedida"
+                                    placeholder="Ej: kg"
+                                    autocomplete="off"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="onCerrar()">Regresar</button>
+                    <button type="submit" class="btn-submit" [disabled]="!canSubmit">
+                        {{ loadingSubmit ? 'Creando...' : 'Crear' }}
+                    </button>
+                </div>
+            </form>
+        }
+    </div>
+</div>

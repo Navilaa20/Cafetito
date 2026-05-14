@@ -1,0 +1,102 @@
+<div class="transportistas-container">
+    <div class="section-header">
+        <div>
+            <h2>Administrar Transportistas</h2>
+            <p class="section-subtitle">Panel del Beneficio — Sistema Cafetito</p>
+        </div>
+    </div>
+
+    <div class="filters-bar">
+        <div class="filter-group">
+            <label for="filterCui">Buscar por CUI</label>
+            <input
+                    id="filterCui"
+                    type="text"
+                    [(ngModel)]="filterCui"
+                    placeholder="CUI parcial"
+                    (keydown.enter)="buscarPorCui()"
+            />
+        </div>
+        <div class="filter-group">
+            <label for="filterEstado">Filtrar por Estado</label>
+            <select id="filterEstado" [(ngModel)]="filterEstado" (change)="filtrarPorEstado()">
+                <option value="">Todos</option>
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button type="button" class="btn-search" [disabled]="!puedeBuscarCui" (click)="buscarPorCui()">
+                Buscar
+            </button>
+            <button type="button" class="btn-clear" (click)="limpiarFiltros()">
+                Limpiar Filtros
+            </button>
+        </div>
+    </div>
+
+    @if (loading) {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando transportistas...</p>
+        </div>
+    }
+
+    @if (!loading && transportistas.length > 0) {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Agricultor</th>
+                    <th>CUI</th>
+                    <th>Nombre Transportista</th>
+                    <th>Estado</th>
+                    <th>Observaciones</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (t of transportistas; track t.idTransportista) {
+                        <tr>
+                            <td class="mono">{{ t.nombreAgricultor }}</td>
+
+                            <td class="mono">{{ t.cui }}</td>
+
+                            <td>{{ t.nombreCompleto }}</td>
+
+                            <td>
+                <span class="badge" [class.badge-active]="t.estado" [class.badge-inactive]="!t.estado">
+                  {{ t.estado ? 'Activo' : 'Inactivo' }}
+                </span>
+                            </td>
+
+                            <td class="observaciones-cell">{{ t.observaciones ?? '—' }}</td>
+
+                            <td>
+                                <button type="button" class="btn-action" (click)="abrirCambiarEstado(t)">
+                                    Cambiar Estado
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (!loading && transportistas.length === 0) {
+        <div class="empty-state">
+            <div class="empty-icon">&#128666;</div>
+            <h3>No existen registros</h3>
+            <p>No hay transportistas que coincidan con los criterios actuales.</p>
+        </div>
+    }
+
+    @if (showCambiarEstadoModal && transportistaSeleccionado) {
+        <app-cambiar-estado-transportista-form
+                [transportista]="transportistaSeleccionado"
+                (cerrar)="cerrarCambiarEstado()"
+                (actualizado)="onEstadoActualizado()"
+        />
+    }
+</div>

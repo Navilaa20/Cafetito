@@ -1,0 +1,55 @@
+<div class="dashboard">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">&#9749;</span>
+      <div>
+        <h1 class="brand-title">Cafetito</h1>
+        <span class="brand-subtitle">Sistema Cafetito</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (tab of tabs; track tab.id) {
+        <a
+          [routerLink]="tab.path"
+          routerLinkActive="nav-item-active"
+          [routerLinkActiveOptions]="tab.id === 'pesajes' ? { exact: false } : { exact: true }"
+          class="nav-item"
+        >
+          <span class="nav-icon" [innerHTML]="tab.icon"></span>
+          <span class="nav-label">{{ tab.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">{{ username.charAt(0).toUpperCase() }}</div>
+        <div class="user-details">
+          <span class="user-name">{{ username }}</span>
+          <span class="user-role">Agricultor</span>
+        </div>
+      </div>
+      <button class="btn-logout" (click)="logout()" title="Cerrar sesion">&#9210;</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="content-header">
+      <div>
+        <h2 class="page-title">
+          @switch (activeTab) {
+            @case ('pesajes')         { Gestion de Pesajes }
+            @case ('transportes')    { Gestion de Transportes }
+            @case ('transportistas') { Gestion de Transportistas }
+          }
+        </h2>
+        <p class="page-subtitle">Panel del Agricultor — Sistema Cafetito</p>
+      </div>
+    </header>
+
+    <section class="content-body">
+      <router-outlet />
+    </section>
+  </main>
+</div>

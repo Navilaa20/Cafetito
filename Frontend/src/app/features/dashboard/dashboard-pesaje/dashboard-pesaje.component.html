@@ -1,0 +1,192 @@
+<div class="dashboard">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-icon">&#9749;</span>
+            <div>
+                <h1 class="brand-title">Cafetito</h1>
+                <span class="brand-subtitle">Sistema Cafetito</span>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">{{ username.charAt(0).toUpperCase() }}</div>
+                <div class="user-details">
+                    <span class="user-name">{{ username }}</span>
+                    <span class="user-role">Peso Cabal</span>
+                </div>
+            </div>
+            <button class="btn-logout" (click)="logout()" title="Cerrar sesion">&#9210;</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="content-header">
+            <div>
+                <h2 class="page-title">Bandeja de Peso Cabal</h2>
+                <p class="page-subtitle">Panel de Pesaje — Sistema Cafetito</p>
+            </div>
+        </header>
+
+        <section class="content-body">
+
+            @if (vistaActual === 'BANDEJA') {
+                <div class="panel-section">
+                    <h3>Cuentas en Proceso</h3>
+                    <p class="text-muted">Seleccione una cuenta para registrar el peso de sus parcialidades.</p>
+
+                    @if (cuentas.length === 0) {
+                        <div class="empty-state">
+                            <p>No existen registros pendientes.</p>
+                        </div>
+                    } @else {
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>No. Cuenta</th>
+                                <th>Fecha Envío</th>
+                                <th>Medida Peso</th>
+                                <th>Estado Cuenta</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                @for (c of cuentas; track c.idCuenta) {
+                                    <tr>
+                                        <td>{{ c.idCuenta }}</td>
+                                        <td>{{ c.fechaEnvio }}</td>
+                                        <td>{{ c.medidaPeso }}</td>
+                                        <td><span class="badge badge-info">{{ c.estadoCuenta }}</span></td>
+                                        <td>
+                                            <button class="btn-action" (click)="verDetalle(c)">Ver Detalle</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            }
+
+            @if (vistaActual === 'DETALLE') {
+                <div class="panel-section">
+                    <div class="header-with-action">
+                        <h3>Detalle de Cuenta #{{ cuentaSeleccionada?.idCuenta }}</h3>
+                        <button class="btn-secondary" (click)="regresar()">Regresar</button>
+                    </div>
+
+                    <table class="data-table mt-4">
+                        <thead>
+                        <tr>
+                            <th>ID Parcialidad</th>
+                            <th>Placa</th>
+                            <th>CUI Transportista</th>
+                            <th>Tipo Medida</th>
+                            <th>Peso Báscula</th>
+                            <th>Fecha Peso</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @for (p of parcialidades; track p.idParcialidad) {
+                                <tr>
+                                    <td>{{ p.idParcialidad }}</td>
+                                    <td>{{ p.placa }}</td>
+                                    <td>{{ p.cuiTransportista }}</td>
+                                    <td>{{ p.tipoMedida }}</td>
+                                    <td>{{ p.pesoBascula ? p.pesoBascula : '---' }}</td>
+                                    <td>{{ p.fechaPeso ? p.fechaPeso : '---' }}</td>
+                                    <td>{{ p.detalle }}</td>
+                                    <td>
+                                        @if (!p.pesoBascula) {
+                                            <button class="btn-primary-sm" (click)="abrirModalPeso(p)">Actualizar Peso</button>
+                                        }
+                                        @if (p.pesoBascula) {
+                                            <button class="btn-action" (click)="generarBoleta(p)">Generar Boleta</button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (mostrarModalPeso) {
+                <div class="modal-overlay">
+                    <div class="modal-card">
+                        <div class="modal-header">
+                            <h3>Registrar Pesaje</h3>
+                            <button class="btn-close" (click)="cerrarModalPeso()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Parcialidad ID:</strong> {{ parcialidadSeleccionada?.idParcialidad }}</p>
+
+                            <div class="form-group">
+                                <label>Peso Obtenido</label>
+                                <input type="number" [(ngModel)]="pesoObtenido" class="form-control" placeholder="0.00" />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Medida Peso</label>
+                                <select [(ngModel)]="medidaPeso" class="form-control">
+                                    <option value="kg">Kilogramos (kg)</option>
+                                    <option value="qq">Quintales (qq)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Observaciones</label>
+                                <textarea [(ngModel)]="observaciones" class="form-control" rows="3"></textarea>
+                            </div>
+
+                            <button class="btn-primary w-100 mt-2" [disabled]="!pesoObtenido" (click)="actualizarPeso()">Confirmar y Actualizar</button>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (mostrarModalBoleta) {
+                <div class="modal-overlay">
+                    <div class="modal-card boleta-card">
+
+                        <div class="ticket-imprimible" id="ticket-bascula">
+                            <div class="ticket-header">
+                                <h2>CAFETITO S.A.</h2>
+                                <p>Comprobante de Peso Cabal</p>
+                                <hr>
+                            </div>
+                            <div class="ticket-body">
+                                <p><strong>Fecha Boleta:</strong> {{ datosBoleta.fechaBoleta }}</p>
+                                <p><strong>Operador:</strong> {{ datosBoleta.usuario }}</p>
+                                <hr>
+                                <p><strong>No. Cuenta:</strong> {{ datosBoleta.cuenta }}</p>
+                                <p><strong>Ref. Pesaje:</strong> {{ datosBoleta.idPesaje }}</p>
+                                <p><strong>ID Parcialidad:</strong> {{ datosBoleta.idParcialidad }}</p>
+                                <hr>
+                                <p><strong>Transporte Placa:</strong> {{ datosBoleta.placa }}</p>
+                                <p><strong>CUI Transportista:</strong> {{ datosBoleta.cui }}</p>
+                                <hr>
+                                <h3 class="ticket-peso">PESO BÁSCULA: {{ datosBoleta.peso }} {{ datosBoleta.medida }}</h3>
+                                <p><strong>Fecha de Pesaje:</strong> {{ datosBoleta.fechaPesaje }}</p>
+                            </div>
+                            <div class="ticket-footer">
+                                <hr>
+                                <p>Firma de Conformidad</p>
+                                <br><br>
+                                <p>_______________________</p>
+                            </div>
+                        </div>
+
+                        <div class="boleta-actions no-print">
+                            <button class="btn-secondary w-100 mb-2" (click)="cerrarBoleta()">Cerrar</button>
+                            <button class="btn-primary w-100" (click)="imprimirBoleta()">🖨️ Imprimir / Guardar PDF</button>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </section>
+    </main>
+</div>

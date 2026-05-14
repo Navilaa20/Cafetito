@@ -1,0 +1,62 @@
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# --- IDEs y editores ---
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+*.code-workspace
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# --- Java / Maven ---
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# --- Spring Boot: perfiles locales (credenciales, no subir) ---
+**/application-local.properties
+**/application-local.yml
+**/application-local.yaml
+**/application-secrets.properties
+
+# --- Node.js / Angular ---
+**/node_modules/
+**/dist/
+**/tmp/
+**/.angular/cache/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Variables de entorno ---
+.env
+.env.*
+!.env.example
+
+# --- Temporales y backups ---
+*.swp
+*.swo
+*~
+*.bak
+*.tmp

@@ -1,0 +1,100 @@
+<div class="transportistas-container">
+  <div class="section-header">
+    <div>
+      <h2>Administrar Transportes</h2>
+      <p class="section-subtitle">Panel del Beneficio — Sistema Cafetito</p>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label for="filterPlaca">Buscar por Placa</label>
+      <input
+        id="filterPlaca"
+        type="text"
+        [(ngModel)]="filterPlaca"
+        placeholder="Placa parcial"
+        (keydown.enter)="buscarPorPlaca()"
+      />
+    </div>
+    <div class="filter-group">
+      <label for="filterEstado">Filtrar por Estado</label>
+      <select id="filterEstado" [(ngModel)]="filterEstado" (change)="filtrarPorEstado()">
+        <option value="">Todos</option>
+        <option value="activo">Activo</option>
+        <option value="inactivo">Inactivo</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button type="button" class="btn-search" [disabled]="!puedeBuscarPlaca" (click)="buscarPorPlaca()">
+        Buscar
+      </button>
+      <button type="button" class="btn-clear" (click)="limpiarFiltros()">
+        Limpiar Filtros
+      </button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando transportes...</p>
+    </div>
+  }
+
+  @if (!loading && transportes.length > 0) {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Agricultor</th>
+            <th>Placa</th>
+            <th>Estado</th>
+            <th>Observaciones</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+          <tbody>
+              @for (t of transportes; track t.id) {
+                  <tr>
+                      <td class="mono">{{ t.nombreAgricultor }}</td>
+
+                      <td class="mono">{{ t.placa }}</td>
+
+                      <td>
+        <span class="badge" [class.badge-active]="t.activo" [class.badge-inactive]="!t.activo">
+          {{ t.activo ? 'Activo' : 'Inactivo' }}
+        </span>
+                      </td>
+
+                      <td class="observaciones-cell">
+                          {{ t.observaciones ?? '—' }}
+                      </td>
+
+                      <td>
+                          <button type="button" class="btn-action" (click)="abrirCambiarEstado(t)">
+                              Cambiar Estado
+                          </button>
+                      </td>
+                  </tr> }
+          </tbody>
+      </table>
+    </div>
+  }
+
+  @if (!loading && transportes.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">&#128666;</div>
+      <h3>No existen registros</h3>
+      <p>No hay transportes que coincidan con los criterios actuales.</p>
+    </div>
+  }
+
+  @if (showCambiarEstadoModal && transporteSeleccionado) {
+    <app-cambiar-estado-transporte-form
+      [transporte]="transporteSeleccionado"
+      (cerrar)="cerrarCambiarEstado()"
+      (actualizado)="onEstadoActualizado()"
+    />
+  }
+</div>

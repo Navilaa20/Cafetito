@@ -1,0 +1,136 @@
+<div class="transportistas-container">
+    <div class="section-header">
+        <div class="header-main">
+            <div>
+                <h2>Administrar Cuentas</h2>
+                <p class="section-subtitle">Panel del Beneficio — Sistema Cafetito</p>
+            </div>
+
+            <button type="button" class="btn-solicitudes" (click)="abrirSolicitudes()">
+                <span class="icon">📩</span>
+                Solicitudes Pendientes
+                @if (solicitudes.length > 0) {
+                    <span class="badge-count">{{ solicitudes.length }}</span>
+                }
+            </button>
+        </div>
+    </div>
+
+    <div class="filters-bar">
+        <div class="filter-group">
+            <label for="filterFecha">Buscar por Fecha</label>
+            <input id="filterFecha" type="date" [(ngModel)]="filterFecha" (keydown.enter)="buscar()" />
+        </div>
+        <div class="filter-group">
+            <label for="filterNumeroCuenta">Buscar por No. de Cuenta</label>
+            <input id="filterNumeroCuenta" type="text" [(ngModel)]="filterNumeroCuenta" placeholder="No. Cuenta" (keydown.enter)="buscar()" />
+        </div>
+        <div class="filter-group">
+            <label for="filterEstado">Filtrar por Estado</label>
+            <select id="filterEstado" [(ngModel)]="filterEstado" (change)="filtrarPorEstado()">
+                <option value="">Todos</option>
+                <option value="CUENTA_CREADA">Cuenta Creada</option>
+                <option value="CUENTA_ABIERTA">Cuenta Abierta</option>
+                <option value="PESAJE_INICIADO">Pesaje Iniciado</option>
+                <option value="PESAJE_FINALIZADO">Pesaje Finalizado</option>
+                <option value="CUENTA_CERRADA">Cuenta Cerrada</option>
+                <option value="CUENTA_CONFIRMADA">Cuenta Confirmada</option>
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button type="button" class="btn-search" [disabled]="!puedeBuscar" (click)="buscar()">Buscar</button>
+            <button type="button" class="btn-clear" (click)="limpiarFiltros()">Limpiar Filtros</button>
+        </div>
+    </div>
+
+    @if (loading) {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando información...</p>
+        </div>
+    }
+
+    @if (!loading && cuentas.length > 0) {
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>No. Cuenta</th>
+                    <th>Agricultor</th>
+                    <th>Peso Total</th>
+                    <th>Cant. Parcialidades</th>
+                    <th>Fecha Envio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (c of cuentas; track c.idCuenta) {
+                        <tr>
+                            <td class="mono">{{ c.idCuenta }}</td>
+                            <td class="mono">{{ c.nitAgricultor }}</td>
+                            <td>{{ c.pesoEnviado }}</td>
+                            <td>{{ c.cantidadParcialidades }}</td>
+                            <td>{{ c.fechaCreacion | date:'shortDate' }}</td>
+                            <td>
+                <span [ngClass]="{
+                  'badge-warning': c.estadoCuenta === 'CUENTA_CREADA',
+                  'badge-info': c.estadoCuenta !== 'CUENTA_CREADA'
+                }" class="badge">
+                  {{ estadoLabel(c.estadoCuenta) }}
+                </span>
+                            </td>
+                            <td class="actions-cell">
+                                <div class="btn-group">
+                                    @if (c.estadoCuenta === 'CUENTA_CREADA') {
+                                        <button type="button" class="btn-authorize" (click)="autorizar(c.idCuenta)">Autorizar</button>
+                                    }
+                                    <button type="button" class="btn-action" (click)="verDetalle(c.idCuenta)">Ver Detalle</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (!loading && cuentas.length === 0) {
+        <div class="empty-state">
+            <div class="empty-icon">&#128179;</div>
+            <h3>No existen registros</h3>
+            <p>No hay cuentas que coincidan con los criterios actuales.</p>
+        </div>
+    }
+
+    @if (showSolicitudesModal) {
+        <div class="modal-overlay" (click)="showSolicitudesModal = false">
+            <div class="modal-card solicitudes-modal" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>Solicitudes de Pesaje Pendientes</h3>
+                    <button type="button" class="btn-close" (click)="showSolicitudesModal = false">&times;</button>
+                </div>
+                <div class="modal-body">
+                    @if (solicitudes.length === 0) {
+                        <p class="empty-msg">No hay solicitudes de agricultores en este momento.</p>
+                    } @else {
+                        <div class="solicitudes-list">
+                            @for (s of solicitudes; track s.idPesaje) {
+                                <div class="solicitud-item">
+                                    <div class="solicitud-info">
+                                        <span class="agricultor-nit">Agricultor: {{ s.nitAgricultor }}</span>
+                                        <span class="peso-proyectado">Peso Proyectado: {{ s.pesoTotalActual }} kg</span>
+                                        <span class="fecha">Solicitado el: {{ s.fechaCreacion | date:'short' }}</span>
+                                    </div>
+                                    <button type="button" class="btn-approve" (click)="confirmarGenerarCuenta(s.idPesaje)">
+                                        Generar Cuenta
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
