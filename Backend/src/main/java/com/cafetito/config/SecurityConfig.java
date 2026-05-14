@@ -37,27 +37,15 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Públicos
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/estado").permitAll()
-
-                        // 2. Panel del Beneficio (Endpoints compartidos con prefijos específicos)
-                        // Usamos hasAnyAuthority para evitar conflictos con el prefijo "ROLE_"
                         .requestMatchers("/api/transportes/filtrar", "/api/transportes/buscar", "/api/transportes/todos").hasAnyAuthority("BENEFICIO", "ROLE_BENEFICIO")
                         .requestMatchers("/api/transportistas/filtrar", "/api/transportistas/buscar", "/api/transportistas/todos").hasAnyAuthority("BENEFICIO", "ROLE_BENEFICIO")
-
-                        // 3. Rutas exclusivas de administración
                         .requestMatchers("/api/admin/**").hasAnyAuthority("BENEFICIO", "ROLE_BENEFICIO")
-
-                        // 4. Rutas exclusivas de Agricultor
                         .requestMatchers("/api/pesajes", "/api/pesajes/**").hasAnyAuthority("AGRICULTOR", "ROLE_AGRICULTOR")
                         .requestMatchers("/api/parcialidades", "/api/parcialidades/**").hasAnyAuthority("AGRICULTOR", "ROLE_AGRICULTOR")
                         .requestMatchers("/api/transportes/**").hasAnyAuthority("AGRICULTOR", "ROLE_AGRICULTOR")
                         .requestMatchers("/api/transportistas/**").hasAnyAuthority("AGRICULTOR", "ROLE_AGRICULTOR")
-                        .requestMatchers("/api/transportes/disponibles").hasRole("AGRICULTOR")
-                        .requestMatchers("/api/transportistas/disponibles").hasRole("AGRICULTOR")
-
-                        // 5. General / Autenticado
                         .requestMatchers("/api/catalogos/**").authenticated()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
@@ -69,8 +57,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Es mejor permitir el origen de tu frontend específicamente
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
+
+        // ✅ AGREGAMOS LA URL DE TU FRONTEND EN PRODUCCIÓN
+        config.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://cafetito-front.onrender.com" // 👈 Pegado aquí
+        ));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
         config.setAllowCredentials(true);
