@@ -162,7 +162,7 @@ public class TransportistaService {
                 t.getTipoLicencia(),
                 t.getFechaVencimientoLicencia(),
                 t.getEstado(),
-                t.getEstado(),
+                t.getDisponible(),
                 nombreAgricultor, // ✅ Se asigna aquí
                 t.getPesajeAsociado(),
                 t.getObservaciones()
