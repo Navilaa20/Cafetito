@@ -39,6 +39,7 @@ public class ParcialidadAgricultorService {
     @Transactional
     public ParcialidadResponseDTO crearParcialidad(ParcialidadRequestDTO dto, Long idUsuario) {
 
+        // 1. Validar el Pesaje
         Pesaje pesaje = pesajeRepository.findById(dto.getIdPesaje())
                 .orElseThrow(() -> new RuntimeException("El pesaje no existe"));
 
@@ -51,24 +52,47 @@ public class ParcialidadAgricultorService {
             throw new IllegalArgumentException("El valor minimo es 1");
         }
 
+        // 👇 ================= CANDADO Y BLOQUEO DE FLOTA ================= 👇
+        // 2. Buscar y validar al Transportista (Piloto)
+        Transportista piloto = transportistaRepository.findById(dto.getIdTransportista())
+                .orElseThrow(() -> new RuntimeException("Transportista no encontrado"));
+
+        // EL CANDADO: Evitar que un piloto tome dos viajes al mismo tiempo
+        if (!piloto.getDisponible()) {
+            throw new RuntimeException("El transportista " + piloto.getNombreCompleto() + " ya se encuentra en otro viaje.");
+        }
+
+        // Lo bloqueamos para este viaje
+        piloto.setDisponible(false);
+        piloto.setPesajeAsociado(pesaje.getId());
+        transportistaRepository.save(piloto);
+
+        // 3. Buscar y bloquear el Transporte (Camión)
+        Transporte camion = transporteRepository.findById(Long.parseLong(dto.getIdTransporte()))
+                .orElseThrow(() -> new RuntimeException("Transporte no encontrado"));
+
+        // Como el camión solo maneja un estado, lo ponemos inactivo mientras viaja.
+        camion.setDisponible(false);
+        transporteRepository.save(camion);
+
+        // 4. Crear la boleta de Parcialidad
         Parcialidad p = new Parcialidad();
         p.setIdPesaje(pesaje.getId());
         p.setIdCuenta(null);
         p.setIdTransporte(Long.parseLong(dto.getIdTransporte()));
         p.setIdTransportista(dto.getIdTransportista());
 
-        // ✅ CORRECCIÓN 1: Asegurarnos de poblar todas las columnas de peso
+        // Asegurarnos de poblar todas las columnas de peso
         p.setPesoEnviado(pesoConvertido);
-        p.setPesoDeclarado(pesoConvertido); // Añade esto a tu Entidad Parcialidad si no existe
-        p.setPesoEnKg(pesoConvertido);      // Añade esto a tu Entidad Parcialidad si no existe
+        p.setPesoDeclarado(pesoConvertido);
+        p.setPesoEnKg(pesoConvertido);
 
         p.setTipoDeMedida(dto.getTipoDeMedida() != null ? dto.getTipoDeMedida().trim() : null);
         p.setAceptado(null);
 
         Parcialidad saved = parcialidadRepository.save(p);
 
-        // ✅ CORRECCIÓN 2: Actualizar el contador del padre (Pesaje)
-        // Sumamos +1 a la cantidad de parcialidades asociadas a este pesaje
+        // 5. Actualizar el contador del padre (Pesaje)
         int cantidadActual = pesaje.getCantidadParcialidades() != null ? pesaje.getCantidadParcialidades() : 0;
         pesaje.setCantidadParcialidades(cantidadActual + 1);
         pesajeRepository.save(pesaje);

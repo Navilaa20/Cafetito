@@ -31,9 +31,13 @@ public class Transportista {
     @Column(name = "fecha_vencimiento_licencia", nullable = false)
     private LocalDate fechaVencimientoLicencia;
 
-    // ✅ MAGIA AQUÍ: En Java se llama 'estado', pero en Postgres se guarda en 'disponible'
-    @Column(name = "disponible", nullable = false)
+    // ✅ Estado Operativo (¿Trabaja con nosotros? Activo/Inactivo)
+    @Column(name = "estado", nullable = false)
     private Boolean estado = true;
+
+    // ✅ Disponibilidad de Viaje (¿Está libre en el patio? Sí/No)
+    @Column(name = "disponible", nullable = false)
+    private Boolean disponible = true;
 
     @Column(name = "id_usuario", nullable = false)
     private Long idUsuario;
@@ -91,6 +95,14 @@ public class Transportista {
 
     public void setFechaRegistro(LocalDateTime fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
+    }
+
+    public Boolean getDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(Boolean disponible) {
+        this.disponible = disponible;
     }
 
     public List<Transporte> getTransportes() { return transportes; }

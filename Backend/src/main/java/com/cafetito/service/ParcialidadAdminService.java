@@ -114,6 +114,8 @@ public class ParcialidadAdminService {
         p.setDetalle(DETALLE_ESPERA);
         p.setAceptado(true);
         parcialidadRepository.save(p);
+
+        liberarFlota(p);
     }
 
     @Transactional
@@ -128,6 +130,8 @@ public class ParcialidadAdminService {
         p.setDetalle(DETALLE_RECHAZADO);
         p.setAceptado(false);
         parcialidadRepository.save(p);
+
+        liberarFlota(p);
     }
 
     private String generarQRBase64(String content) {
@@ -143,6 +147,25 @@ public class ParcialidadAdminService {
             return Base64.getEncoder().encodeToString(bos.toByteArray());
         } catch (Exception e) {
             throw new RuntimeException("Error generando QR", e);
+        }
+    }
+
+    private void liberarFlota(Parcialidad parcialidad) {
+        // 1. Liberar al Piloto
+        if (parcialidad.getIdTransportista() != null) {
+            transportistaRepository.findById(parcialidad.getIdTransportista()).ifPresent(piloto -> {
+                piloto.setDisponible(true); // Vuelve a estar libre
+                piloto.setPesajeAsociado(null);
+                transportistaRepository.save(piloto);
+            });
+        }
+
+        // 2. Liberar al Camión
+        if (parcialidad.getIdTransporte() != null) {
+            transporteRepository.findById(parcialidad.getIdTransporte()).ifPresent(camion -> {
+                camion.setDisponible(true); // Vuelve a estar libre
+                transporteRepository.save(camion);
+            });
         }
     }
 }
