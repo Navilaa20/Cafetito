@@ -108,25 +108,38 @@ public class PesajeCabalService {
 
         // Actualizar el acumulado de la cuenta
         Double pesoActual = c.getPesoTotalObtenido() != null ? c.getPesoTotalObtenido() : 0.0;
-        c.setPesoTotalObtenido(pesoActual + request.getPesoObtenido());
+        Double nuevoAcumulado = pesoActual + request.getPesoObtenido();
+        c.setPesoTotalObtenido(nuevoAcumulado);
+
+        //Obtenemos el peso prometido
+        Double pesoDeclarado = c.getPesoEnviado() != null ? c.getPesoEnviado(): 0.0;
+
+        Double limiteInferiorPermitido = pesoDeclarado * 0.95; // 5% de tolerancia
 
         // --- RECUENTO DINÁMICO DE PARCIALIDADES ---
         List<Parcialidad> todas = parcialidadRepository.buscarPorIdCuenta(c.getIdCuenta());
         long totalCamiones = todas.size();
-
         // Contamos las que ya tienen peso, incluyendo explícitamente la actual para evitar errores de caché
         long camionesConPeso = todas.stream()
                 .filter(par -> par.getPesoBascula() != null || par.getIdParcialidad().equals(idParcialidad))
                 .count();
 
-        // Si ya se pesaron todos los camiones de esta cuenta
-        if (camionesConPeso >= totalCamiones) {
+        boolean todosLosCamionesPesados = camionesConPeso >= totalCamiones;
+
+        if (nuevoAcumulado >= pesoDeclarado) {
+            // CASO 1: Ya llegó al 100% o hay SOBRANTE. Se finaliza de inmediato.
             c.setEstadoCuenta(EstadoCuenta.PESAJE_FINALIZADO);
-        } else if (c.getEstadoCuenta() == EstadoCuenta.CUENTA_ABIERTA) {
-            // Si es el primer camión, pasa de Abierta a Iniciado
+
+        } else if (nuevoAcumulado >= limiteInferiorPermitido && todosLosCamionesPesados) {
+            // CASO 2: Faltante ACEPTABLE (Quedó entre el 95% y 99%).
+            // Solo se finaliza si ya no hay más camiones en camino.
+            c.setEstadoCuenta(EstadoCuenta.PESAJE_FINALIZADO);
+
+        } else {
+            // CASO 3: Faltante GRAVE (< 95%) o aún vienen camiones en camino.
+            // La cuenta se queda viva. El beneficio pedirá que manden otro camión.
             c.setEstadoCuenta(EstadoCuenta.PESAJE_INICIADO);
         }
-
         cuentaRepository.save(c);
     }
 }
