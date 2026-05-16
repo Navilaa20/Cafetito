@@ -63,12 +63,6 @@ public class Parcialidad {
     @Column(name = "tipo_de_medida", length = 50)
     private String tipoDeMedida;
 
-    @Column(name = "peso_declarado")
-    private Double pesoDeclarado;
-
-    @Column (name = "peso_en_kg")
-    private Double pesoEnKg;
-
     public Parcialidad() {}
 
 }

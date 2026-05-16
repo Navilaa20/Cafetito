@@ -35,6 +35,4 @@ public class AdminParcialidadController {
         service.rechazarParcialidad(id);
         return ResponseEntity.ok().build();
     }
-
-
 }

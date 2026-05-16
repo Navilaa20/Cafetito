@@ -17,14 +17,6 @@
         />
     }
 
-
-    @if (showForm) {
-        <app-nuevo-pesaje-form
-                (cerrar)="cerrarFormulario()"
-                (creado)="onPesajeCreado()"
-        />
-    }
-
     @if (loading) {
         <div class="loading-state">
             <div class="spinner"></div>
@@ -50,7 +42,7 @@
                     @for (p of pesajes; track p.idPesaje) {
                         <tr>
                             <td class="mono">{{ p.idPesaje }}</td>
-                            <td>{{ p.numeroCuenta ?? '-' }}</td>
+                            <td>{{ p.idCuenta ?? '-' }}</td>
                             <td>{{ p.pesoTotalActual }}</td>
                             <td>{{ p.cantidadParcialidades }}</td>
                             <td>{{ formatFecha(p.fechaCreacion) }}</td>

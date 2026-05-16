@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -37,16 +38,17 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/estado").permitAll()
-                        .requestMatchers("/api/transportes/filtrar", "/api/transportes/buscar", "/api/transportes/todos").hasAnyAuthority("BENEFICIO", "ROLE_BENEFICIO")
-                        .requestMatchers("/api/transportistas/filtrar", "/api/transportistas/buscar", "/api/transportistas/todos").hasAnyAuthority("BENEFICIO", "ROLE_BENEFICIO")
-                        .requestMatchers("/api/admin/**").hasAnyAuthority("BENEFICIO", "ROLE_BENEFICIO")
-                        .requestMatchers("/api/pesajes", "/api/pesajes/**").hasAnyAuthority("AGRICULTOR", "ROLE_AGRICULTOR")
-                        .requestMatchers("/api/parcialidades", "/api/parcialidades/**").hasAnyAuthority("AGRICULTOR", "ROLE_AGRICULTOR")
-                        .requestMatchers("/api/transportes/**").hasAnyAuthority("AGRICULTOR", "ROLE_AGRICULTOR")
-                        .requestMatchers("/api/transportistas/**").hasAnyAuthority("AGRICULTOR", "ROLE_AGRICULTOR")
-                        .requestMatchers("/api/catalogos/**").authenticated()
+                        .requestMatchers("/api/admin/transportistas/**").hasRole("BENEFICIO")
+                        .requestMatchers("/api/admin/transportes/**").hasRole("BENEFICIO")
+                        .requestMatchers("/api/admin/cuentas/**").hasRole("BENEFICIO")
+                        .requestMatchers("/api/admin/parcialidades/**").hasRole("BENEFICIO")
+                        .requestMatchers("/api/pesajes", "/api/pesajes/**").hasRole("AGRICULTOR")
+                        .requestMatchers("/api/parcialidades", "/api/parcialidades/**").hasRole("AGRICULTOR")
+                        .requestMatchers("/api/transportes/**").hasRole("AGRICULTOR")
+                        .requestMatchers("/api/transportistas/**").hasRole("AGRICULTOR")
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -57,15 +59,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
-        // ✅ AGREGAMOS LA URL DE TU FRONTEND EN PRODUCCIÓN
-        config.setAllowedOrigins(List.of(
-                "http://localhost:4200",
-                "https://cafetito-front.onrender.com"
-        ));
-
+        config.setAllowedOrigins(List.of("http://localhost:4200"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        config.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

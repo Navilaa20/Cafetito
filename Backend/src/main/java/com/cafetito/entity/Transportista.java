@@ -2,8 +2,6 @@ package com.cafetito.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-import java.util.List;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -31,13 +29,9 @@ public class Transportista {
     @Column(name = "fecha_vencimiento_licencia", nullable = false)
     private LocalDate fechaVencimientoLicencia;
 
-    // ✅ Estado Operativo (¿Trabaja con nosotros? Activo/Inactivo)
-    @Column(name = "estado", nullable = false)
-    private Boolean estado = true;
-
-    // ✅ Disponibilidad de Viaje (¿Está libre en el patio? Sí/No)
+    // ✅ MAGIA AQUÍ: En Java se llama 'estado', pero en Postgres se guarda en 'disponible'
     @Column(name = "disponible", nullable = false)
-    private Boolean disponible = true;
+    private Boolean estado = true;
 
     @Column(name = "id_usuario", nullable = false)
     private Long idUsuario;
@@ -51,16 +45,6 @@ public class Transportista {
     @CreationTimestamp // ✅ Genera el timestamp automáticamente al crear
     @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro;
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "transportista_transporte",
-            schema = "agricultor", // Especificamos el esquema
-            joinColumns = @JoinColumn(name = "id_transportista"),
-            inverseJoinColumns = @JoinColumn(name = "id_transporte")
-    )
-
-    private List<Transporte> transportes = new java.util.ArrayList<>();
 
     public Transportista() {}
 
@@ -96,15 +80,4 @@ public class Transportista {
     public void setFechaRegistro(LocalDateTime fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
     }
-
-    public Boolean getDisponible() {
-        return disponible;
-    }
-
-    public void setDisponible(Boolean disponible) {
-        this.disponible = disponible;
-    }
-
-    public List<Transporte> getTransportes() { return transportes; }
-    public void setTransportes(List<Transporte> transportes) { this.transportes = transportes; }
 }

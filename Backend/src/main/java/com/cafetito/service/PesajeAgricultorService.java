@@ -104,15 +104,7 @@ public class PesajeAgricultorService {
     private PesajeResponseDTO toDTO(Pesaje p) {
         PesajeResponseDTO dto = new PesajeResponseDTO();
         dto.setIdPesaje(p.getId());
-
-        // ✅ Reconstruimos el formato exacto de la cuenta
-        if (p.getIdCuenta() != null) {
-            String numeroFormateado = "CTA-A" + p.getIdAgricultor() + "-P" + p.getId();
-            dto.setNumeroCuenta(numeroFormateado);
-        } else {
-            dto.setNumeroCuenta("Pendiente");
-        }
-
+        dto.setNumeroCuenta(p.getIdCuenta() != null ? p.getIdCuenta().toString() : "Pendiente");
         dto.setPesoTotalActual(p.getPesoTotalActual());
         dto.setFechaCreacion(p.getFechaCreacion());
         dto.setEstadoPesaje(p.getEstado());

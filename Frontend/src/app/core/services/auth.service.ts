@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { LoginRequestDTO } from '../models/login-request.dto';
 import { LoginResponseDTO, Rol } from '../models/login-response.dto';
-import { STORAGE_KEYS } from '../constants/storage-keys';
 import { AUTH_API_URL } from '../constants/api';
+import { authSessionStore } from '../storage/auth-session.store';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -20,18 +20,20 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-  ) {}
+  ) {
+    authSessionStore.clearLegacyLocalStorage();
+  }
 
   login(credentials: LoginRequestDTO): Observable<LoginResponseDTO> {
     return this.http.post<LoginResponseDTO>(`${AUTH_API_URL}/login`, credentials).pipe(
       tap((res) => {
-        localStorage.setItem(STORAGE_KEYS.TOKEN, res.token);
-        localStorage.setItem(STORAGE_KEYS.ROL, res.rol);
-        localStorage.setItem(STORAGE_KEYS.USERNAME, res.username ?? '');
+        authSessionStore.set('TOKEN', res.token);
+        authSessionStore.set('ROL', res.rol);
+        authSessionStore.set('USERNAME', res.username ?? '');
         if (res.nitAgricultor) {
-          localStorage.setItem(STORAGE_KEYS.NIT_AGRICULTOR, res.nitAgricultor);
+          authSessionStore.set('NIT_AGRICULTOR', res.nitAgricultor);
         } else {
-          localStorage.removeItem(STORAGE_KEYS.NIT_AGRICULTOR);
+          authSessionStore.remove('NIT_AGRICULTOR');
         }
         this.tokenSignal.set(res.token);
         this.rolSignal.set(res.rol);
@@ -40,15 +42,22 @@ export class AuthService {
     );
   }
 
-  logout(): void {
-    localStorage.removeItem(STORAGE_KEYS.TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.ROL);
-    localStorage.removeItem(STORAGE_KEYS.USERNAME);
-    localStorage.removeItem(STORAGE_KEYS.NIT_AGRICULTOR);
+  /** Limpia sesion en cliente (sessionStorage + signals) sin navegar. */
+  clearSession(): void {
+    authSessionStore.clearAll();
     this.tokenSignal.set(null);
     this.rolSignal.set(null);
     this.usernameSignal.set(null);
+  }
+
+  logout(): void {
+    this.clearSession();
     this.router.navigate(['/login']);
+  }
+
+  /** Nombre para UI; si no hay sesion devuelve el texto por defecto. */
+  displayUsername(fallback: string): string {
+    return this.currentUsername() ?? fallback;
   }
 
   getToken(): string | null {
@@ -64,20 +73,20 @@ export class AuthService {
   }
 
   getNitAgricultor(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.NIT_AGRICULTOR);
+    return authSessionStore.get('NIT_AGRICULTOR');
   }
 
   private getStoredToken(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.TOKEN);
+    return authSessionStore.get('TOKEN');
   }
 
   private getStoredRol(): Rol | null {
-    const r = localStorage.getItem(STORAGE_KEYS.ROL);
+    const r = authSessionStore.get('ROL');
     if (r === 'ROLE_AGRICULTOR' || r === 'ROLE_BENEFICIO' || r === 'ROLE_PESOCABAL') return r;
     return null;
   }
 
   private getStoredUsername(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.USERNAME);
+    return authSessionStore.get('USERNAME');
   }
 }

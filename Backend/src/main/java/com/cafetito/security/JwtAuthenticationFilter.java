@@ -31,51 +31,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // 1. Validar que el header exista y tenga el formato Bearer
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7).trim();
 
-        // 2. Validar integridad del token
         if (!jwtUtil.isTokenValid(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 3. Extraer información del Token
         String username = jwtUtil.extractUsername(token);
         String rol = jwtUtil.extractRol(token);
         String nitAgricultor = jwtUtil.extractNitAgricultor(token);
-        Long idUsuario = jwtUtil.extractIdUsuario(token); // ✅ Extraemos el ID que agregamos a JwtUtil
+        Long idUsuario = jwtUtil.extractIdUsuario(token);
 
-        // 4. Normalizar el rol para Spring Security
-        if (rol != null && !rol.startsWith("ROLE_")) {
-            rol = "ROLE_" + rol;
-        }
-
-        // 5. Configurar la autenticación en el contexto de Spring
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             var authorities = List.of(new SimpleGrantedAuthority(rol));
-
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(username, null, authorities);
-
-            // ✅ MODIFICACIÓN CRÍTICA:
-            // Creamos un mapa que contenga tanto el NIT como el ID de usuario.
-            // Esto es lo que lee tu controlador con getIdUsuarioFromAuth()
-            Map<String, Object> extraDetails = new HashMap<>();
-            extraDetails.put("idUsuario", idUsuario);
-
-            if (nitAgricultor != null && !nitAgricultor.isBlank()) {
-                extraDetails.put("nitAgricultor", nitAgricultor);
+            var authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
+            Map<String, Object> details = new HashMap<>();
+            if (idUsuario != null) {
+                details.put("idUsuario", idUsuario);
             }
-
-            authentication.setDetails(extraDetails);
-
-            // Inyectar en el contexto para que el Controlador pueda verlo
+            if (nitAgricultor != null && !nitAgricultor.isBlank()) {
+                details.put("nitAgricultor", nitAgricultor);
+            }
+            if (!details.isEmpty()) {
+                authentication.setDetails(details);
+            }
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 

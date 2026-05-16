@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { STORAGE_KEYS } from '../../../core/constants/storage-keys';
 import { AuthService } from '../../../core/services/auth.service';
 import { PesajeCabalService } from '../../../core/services/pesaje-cabal.service';
 
@@ -13,8 +12,6 @@ import { PesajeCabalService } from '../../../core/services/pesaje-cabal.service'
   styleUrl: './dashboard-pesaje.component.css',
 })
 export class DashboardPesajeComponent implements OnInit {
-  username = localStorage.getItem(STORAGE_KEYS.USERNAME) ?? 'Pesaje';
-
   vistaActual: 'BANDEJA' | 'DETALLE' = 'BANDEJA';
 
   cuentas: any[] = [];
@@ -34,6 +31,10 @@ export class DashboardPesajeComponent implements OnInit {
       private auth: AuthService,
       private pesajeService: PesajeCabalService
   ) {}
+
+  get username(): string {
+    return this.auth.displayUsername('Pesaje');
+  }
 
   ngOnInit(): void {
     this.cargarCuentasActivas();

@@ -1,8 +1,8 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { STORAGE_KEYS } from '../constants/storage-keys';
+import { authSessionStore } from '../storage/auth-session.store';
 
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+  const token = authSessionStore.get('TOKEN');
   let headers = req.headers;
   if (token) {
     headers = headers.set('Authorization', `Bearer ${token}`);

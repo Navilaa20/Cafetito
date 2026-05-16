@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://cafetito.onrender.com'
+  production: false,
+  apiUrl: 'http://localhost:8080'
 };

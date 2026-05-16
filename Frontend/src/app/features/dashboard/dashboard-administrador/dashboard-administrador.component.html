@@ -53,14 +53,6 @@
       >
         Transportistas
       </button>
-      <button
-        type="button"
-        class="tab"
-        [class.tab-active]="tabActiva === 'agricultores'"
-        (click)="tabActiva = 'agricultores'"
-      >
-        Agricultores
-      </button>
     </nav>
 
     <section class="content-body">
@@ -73,9 +65,6 @@
           @if (tabActiva === 'transportistas') {
             <app-admin-transportistas />
           }
-        @if (tabActiva === 'agricultores') {
-            <app-admin-agricultores />
-        }
     </section>
   </main>
 </div>

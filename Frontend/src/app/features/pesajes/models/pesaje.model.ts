@@ -1,6 +1,6 @@
 export interface PesajeResponse {
   idPesaje: number;
-  numeroCuenta: string;
+  idCuenta: number | null;
   pesoTotalActual: number;
   cantidadParcialidades: number;
   fechaCreacion: string;

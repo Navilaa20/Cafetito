@@ -222,3 +222,33 @@
   color: var(--text-muted);
   font-size: 0.9rem;
 }
+
+@media (max-width: 640px) {
+  .transportistas-container {
+    padding: 0.25rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .btn-create {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .table-wrapper {
+    border-radius: 10px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.65rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .empty-state {
+    padding: 2.5rem 1rem;
+  }
+}

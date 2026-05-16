@@ -172,3 +172,31 @@
   color: var(--text-muted);
   font-size: 0.9rem;
 }
+
+@media (max-width: 640px) {
+  .detalle-container {
+    padding: 0 0.25rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.15rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .header-actions .btn-secondary,
+  .header-actions .btn-create {
+    flex: 1 1 auto;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.65rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
