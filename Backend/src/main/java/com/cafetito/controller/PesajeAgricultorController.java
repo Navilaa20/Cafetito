@@ -27,7 +27,7 @@ public class PesajeAgricultorController {
     @GetMapping
     @PreAuthorize("hasRole('AGRICULTOR')")
     public ResponseEntity<List<PesajeResponseDTO>> listar() {
-        // Usamos el ID numérico para Railway
+        // Usamos el ID numérico
         Long idAgricultor = getIdAgricultorFromAuth();
         List<PesajeResponseDTO> list = service.listarPorAgricultor(idAgricultor);
         return ResponseEntity.ok(list);
@@ -54,8 +54,8 @@ public class PesajeAgricultorController {
         if (auth != null && auth.getDetails() instanceof Map) {
             Map<String, Object> details = (Map<String, Object>) auth.getDetails();
 
-            // Intentamos obtener el ID (idAgricultor) que viene en el Token
-            Object id = details.get("idAgricultor");
+            // ✅ CORRECCIÓN APLICADA: Usamos "idUsuario" para que coincida con el JwtAuthenticationFilter
+            Object id = details.get("idUsuario");
 
             if (id instanceof Number) return ((Number) id).longValue();
             if (id instanceof String) return Long.valueOf((String) id);
@@ -74,7 +74,6 @@ public class PesajeAgricultorController {
     @GetMapping("/medidas")
     @PreAuthorize("hasRole('AGRICULTOR')")
     public ResponseEntity<List<MedidaPeso>> listarMedidas() {
-        // Llamamos al que ya tienes o agregamos en el Service
         return ResponseEntity.ok(service.listarMedidas());
     }
 }
