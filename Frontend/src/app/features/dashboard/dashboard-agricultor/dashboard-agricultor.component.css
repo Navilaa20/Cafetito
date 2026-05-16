@@ -15,6 +15,7 @@
   top: 0;
   left: 0;
   z-index: 100;
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .sidebar-brand {
@@ -197,44 +198,99 @@
   padding: 1.75rem 2rem;
 }
 
-@media (max-width: 768px) {
-  .sidebar {
-    width: 64px;
-    overflow: hidden;
+/* Tablets y móviles: barra superior con navegación horizontal */
+@media (max-width: 960px) {
+  .dashboard {
+    flex-direction: column;
   }
 
-  .sidebar-brand > div,
-  .nav-label,
-  .user-details {
-    display: none;
+  .sidebar {
+    position: relative;
+    width: 100%;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'brand footer'
+      'nav nav';
+    border-right: none;
+    border-bottom: 1px solid #334155;
+    z-index: 50;
   }
 
   .sidebar-brand {
-    justify-content: center;
-    padding: 1.25rem 0.5rem;
+    grid-area: brand;
+    border-bottom: none;
+    padding: 0.75rem 1rem;
+    min-width: 0;
   }
 
+  .sidebar-nav {
+    grid-area: nav;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem 0.75rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    border-top: 1px solid #334155;
+  }
+
+
   .nav-item {
-    justify-content: center;
-    padding: 0.75rem;
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 44px;
+    padding: 0.65rem 1rem;
   }
 
   .sidebar-footer {
-    justify-content: center;
-    padding: 0.75rem;
+    grid-area: footer;
+    border-top: none;
+    padding: 0.5rem 0.75rem;
+    align-self: center;
   }
 
-  .user-info {
-    display: none;
+  .btn-logout {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
   }
 
   .main-content {
-    margin-left: 64px;
+    margin-left: 0;
+    min-height: auto;
+  }
+
+  .content-header {
+    padding: 1rem 1rem 0.75rem;
+  }
+
+  .page-title {
+    font-size: 1.2rem;
+    line-height: 1.25;
+  }
+
+  .page-subtitle {
+    font-size: 0.78rem;
   }
 
   .content-header,
   .content-body {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .brand-title {
+    font-size: 1rem;
+  }
+
+  .nav-label {
+    max-width: 9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

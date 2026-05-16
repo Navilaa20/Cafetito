@@ -15,6 +15,7 @@ export const routes: Routes = [
         (m) => m.DashboardAgricultorComponent
       ),
     canActivate: [authGuard],
+    canActivateChild: [authGuard],
     data: { role: 'ROLE_AGRICULTOR' },
     children: [
       { path: '', redirectTo: 'pesajes', pathMatch: 'full' },
@@ -53,6 +54,7 @@ export const routes: Routes = [
         (m) => m.DashboardAdministradorComponent
       ),
     canActivate: [authGuard],
+    canActivateChild: [authGuard],
     data: { role: 'ROLE_BENEFICIO' },
     children: [
       { path: '', redirectTo: 'cuentas', pathMatch: 'full' },

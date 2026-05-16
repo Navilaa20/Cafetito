@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7).trim();
 
         // 2. Validar integridad del token
         if (!jwtUtil.isTokenValid(token)) {
@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = jwtUtil.extractUsername(token);
         String rol = jwtUtil.extractRol(token);
         String nitAgricultor = jwtUtil.extractNitAgricultor(token);
-        Long idUsuario = jwtUtil.extractIdUsuario(token); // ✅ Extraemos el ID que agregamos a JwtUtil
+        Long idUsuario = jwtUtil.extractIdUsuario(token);
 
         // 4. Normalizar el rol para Spring Security
         if (rol != null && !rol.startsWith("ROLE_")) {
@@ -63,17 +63,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(username, null, authorities);
 
-            // ✅ MODIFICACIÓN CRÍTICA:
-            // Creamos un mapa que contenga tanto el NIT como el ID de usuario.
-            // Esto es lo que lee tu controlador con getIdUsuarioFromAuth()
-            Map<String, Object> extraDetails = new HashMap<>();
-            extraDetails.put("idUsuario", idUsuario);
+            // Mejores validaciones contra nulos para el mapa
+            Map<String, Object> details = new HashMap<>();
 
-            if (nitAgricultor != null && !nitAgricultor.isBlank()) {
-                extraDetails.put("nitAgricultor", nitAgricultor);
+            if (idUsuario != null) {
+                details.put("idUsuario", idUsuario);
             }
 
-            authentication.setDetails(extraDetails);
+            if (nitAgricultor != null && !nitAgricultor.isBlank()) {
+                details.put("nitAgricultor", nitAgricultor);
+            }
+
+            if (!details.isEmpty()) {
+                authentication.setDetails(details);
+            }
 
             // Inyectar en el contexto para que el Controlador pueda verlo
             SecurityContextHolder.getContext().setAuthentication(authentication);

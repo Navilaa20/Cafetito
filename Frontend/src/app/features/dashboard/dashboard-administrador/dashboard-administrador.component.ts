@@ -2,35 +2,36 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { STORAGE_KEYS } from '../../../core/constants/storage-keys';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminTransportistasComponent } from '../../admin-transportistas/admin-transportistas.component';
 import { AdminTransportesComponent } from '../../admin-transportes/admin-transportes.component';
-// ✅ 1. Importa el componente de agricultores
 import { AdminAgricultoresComponent } from '../../admin-agricultores/admin-agricultores-component';
 
 @Component({
   selector: 'app-dashboard-administrador',
   standalone: true,
-  // ✅ 2. Agrégalo al arreglo de imports
   imports: [
     CommonModule,
     RouterModule,
     AdminTransportistasComponent,
     AdminTransportesComponent,
-    AdminAgricultoresComponent //
+    AdminAgricultoresComponent // ✅ Mantenido en el arreglo
   ],
   templateUrl: './dashboard-administrador.component.html',
   styleUrl: './dashboard-administrador.component.css',
 })
 export class DashboardAdministradorComponent implements OnInit {
-  username = localStorage.getItem(STORAGE_KEYS.USERNAME) ?? 'Administrador';
   tabActiva: 'cuentas' | 'transportes' | 'transportistas' | 'agricultores' = 'cuentas';
 
   constructor(
       private auth: AuthService,
       private router: Router
   ) {}
+
+  //  Getter reactivo conectado al AuthService
+  get username(): string {
+    return this.auth.displayUsername('Administrador');
+  }
 
   ngOnInit(): void {
     this.actualizarTabDesdeUrl(this.router.url);
@@ -42,7 +43,7 @@ export class DashboardAdministradorComponent implements OnInit {
   private actualizarTabDesdeUrl(url: string): void {
     if (url.includes('/cuentas')) {
       this.tabActiva = 'cuentas';
-    } else if (url.includes('/agricultores')) { // ✅ 3. Lógica para la URL de agricultores
+    } else if (url.includes('/agricultores')) { // ✅ RECHAZAMOS EL BORRADO: Mantenemos la lógica de la URL
       this.tabActiva = 'agricultores';
     }
   }

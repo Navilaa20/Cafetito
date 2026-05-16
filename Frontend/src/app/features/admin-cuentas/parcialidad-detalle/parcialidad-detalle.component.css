@@ -212,3 +212,15 @@
   margin: 0;
   font-size: 1.1rem;
 }
+
+@media (max-width: 768px) {
+  .data-table th,
+  .data-table td {
+    padding: 0.6rem 0.45rem;
+    font-size: 0.78rem;
+  }
+
+  .table-wrapper {
+    border-radius: 10px;
+  }
+}

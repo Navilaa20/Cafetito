@@ -18,37 +18,54 @@ export class AuthService {
   currentUsername = computed(() => this.usernameSignal());
 
   constructor(
-    private http: HttpClient,
-    private router: Router,
-  ) {}
+      private http: HttpClient,
+      private router: Router,
+  ) {
+    // Limpiamos rastros de versiones anteriores
+    this.clearLegacyLocalStorage();
+  }
 
   login(credentials: LoginRequestDTO): Observable<LoginResponseDTO> {
     return this.http.post<LoginResponseDTO>(`${AUTH_API_URL}/login`, credentials).pipe(
-      tap((res) => {
-        localStorage.setItem(STORAGE_KEYS.TOKEN, res.token);
-        localStorage.setItem(STORAGE_KEYS.ROL, res.rol);
-        localStorage.setItem(STORAGE_KEYS.USERNAME, res.username ?? '');
-        if (res.nitAgricultor) {
-          localStorage.setItem(STORAGE_KEYS.NIT_AGRICULTOR, res.nitAgricultor);
-        } else {
-          localStorage.removeItem(STORAGE_KEYS.NIT_AGRICULTOR);
-        }
-        this.tokenSignal.set(res.token);
-        this.rolSignal.set(res.rol);
-        this.usernameSignal.set(res.username ?? null);
-      }),
+        tap((res) => {
+          // ✅ TUS CONSTANTES + NUEVO sessionStorage
+          sessionStorage.setItem(STORAGE_KEYS.TOKEN, res.token);
+          sessionStorage.setItem(STORAGE_KEYS.ROL, res.rol);
+          sessionStorage.setItem(STORAGE_KEYS.USERNAME, res.username ?? '');
+
+          if (res.nitAgricultor) {
+            sessionStorage.setItem(STORAGE_KEYS.NIT_AGRICULTOR, res.nitAgricultor);
+          } else {
+            sessionStorage.removeItem(STORAGE_KEYS.NIT_AGRICULTOR);
+          }
+
+          this.tokenSignal.set(res.token);
+          this.rolSignal.set(res.rol);
+          this.usernameSignal.set(res.username ?? null);
+        }),
     );
   }
 
-  logout(): void {
-    localStorage.removeItem(STORAGE_KEYS.TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.ROL);
-    localStorage.removeItem(STORAGE_KEYS.USERNAME);
-    localStorage.removeItem(STORAGE_KEYS.NIT_AGRICULTOR);
+  // independiente para limpiar datos
+  clearSession(): void {
+    sessionStorage.removeItem(STORAGE_KEYS.TOKEN);
+    sessionStorage.removeItem(STORAGE_KEYS.ROL);
+    sessionStorage.removeItem(STORAGE_KEYS.USERNAME);
+    sessionStorage.removeItem(STORAGE_KEYS.NIT_AGRICULTOR);
     this.tokenSignal.set(null);
     this.rolSignal.set(null);
     this.usernameSignal.set(null);
+  }
+
+  logout(): void {
+    this.clearSession();
     this.router.navigate(['/login']);
+  }
+
+  // Helper para la interfaz gráfica (Navbar)
+
+  displayUsername(fallback: string): string {
+    return this.currentUsername() ?? fallback;
   }
 
   getToken(): string | null {
@@ -64,20 +81,28 @@ export class AuthService {
   }
 
   getNitAgricultor(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.NIT_AGRICULTOR);
+    return sessionStorage.getItem(STORAGE_KEYS.NIT_AGRICULTOR);
   }
 
   private getStoredToken(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.TOKEN);
+    return sessionStorage.getItem(STORAGE_KEYS.TOKEN);
   }
 
   private getStoredRol(): Rol | null {
-    const r = localStorage.getItem(STORAGE_KEYS.ROL);
+    const r = sessionStorage.getItem(STORAGE_KEYS.ROL);
     if (r === 'ROLE_AGRICULTOR' || r === 'ROLE_BENEFICIO' || r === 'ROLE_PESOCABAL') return r;
     return null;
   }
 
   private getStoredUsername(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.USERNAME);
+    return sessionStorage.getItem(STORAGE_KEYS.USERNAME);
+  }
+
+  // 🔥 Función de limpieza que previene bugs fantasma de usuarios antiguos
+  private clearLegacyLocalStorage(): void {
+    localStorage.removeItem(STORAGE_KEYS.TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.ROL);
+    localStorage.removeItem(STORAGE_KEYS.USERNAME);
+    localStorage.removeItem(STORAGE_KEYS.NIT_AGRICULTOR);
   }
 }

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { STORAGE_KEYS } from '../../../core/constants/storage-keys';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -12,8 +11,6 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './dashboard-agricultor.component.css',
 })
 export class DashboardAgricultorComponent {
-  username = localStorage.getItem(STORAGE_KEYS.USERNAME) ?? 'Agricultor';
-
   tabs = [
     { id: 'pesajes' as const, label: 'Pesajes', icon: '&#128204;', path: '/dashboard/agricultor/pesajes' },
     { id: 'transportes' as const, label: 'Transportes', icon: '&#128666;', path: '/dashboard/agricultor/transportes' },
@@ -21,9 +18,14 @@ export class DashboardAgricultorComponent {
   ];
 
   constructor(
-    private auth: AuthService,
-    private router: Router,
+      private auth: AuthService,
+      private router: Router,
   ) {}
+
+  // Getter reactivo conectado al AuthService
+  get username(): string {
+    return this.auth.displayUsername('Agricultor');
+  }
 
   get activeTab(): 'pesajes' | 'transportes' | 'transportistas' {
     const url = this.router.url;

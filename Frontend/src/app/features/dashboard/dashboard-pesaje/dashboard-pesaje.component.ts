@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { STORAGE_KEYS } from '../../../core/constants/storage-keys';
 import { AuthService } from '../../../core/services/auth.service';
 import { PesajeCabalService } from '../../../core/services/pesaje-cabal.service';
 
@@ -13,7 +12,11 @@ import { PesajeCabalService } from '../../../core/services/pesaje-cabal.service'
   styleUrl: './dashboard-pesaje.component.css',
 })
 export class DashboardPesajeComponent implements OnInit {
-  username = localStorage.getItem(STORAGE_KEYS.USERNAME) ?? 'Pesaje';
+
+  // Getter reactivo conectado al AuthService
+  get username(): string {
+    return this.auth.displayUsername('Pesaje');
+  }
 
   vistaActual: 'BANDEJA' | 'DETALLE' = 'BANDEJA';
 
@@ -46,7 +49,6 @@ export class DashboardPesajeComponent implements OnInit {
   // --- MÉTODOS DE BANDEJA ---
   cargarCuentasActivas(): void {
     this.pesajeService.listarCuentas().subscribe({
-      // ✅ 2. Se agrega ': any' para cumplir con las reglas estrictas
       next: (data: any) => {
         this.cuentas = data;
       },
@@ -70,7 +72,6 @@ export class DashboardPesajeComponent implements OnInit {
   // --- MÉTODOS DE DETALLE ---
   cargarParcialidades(idCuenta: number): void {
     this.pesajeService.listarParcialidades(idCuenta).subscribe({
-      // ✅ Se agrega ': any'
       next: (data: any) => {
         this.parcialidades = data;
       },
@@ -105,13 +106,11 @@ export class DashboardPesajeComponent implements OnInit {
 
     this.pesajeService.actualizarPeso(this.parcialidadSeleccionada.idParcialidad, payload)
         .subscribe({
-          // En un request vacío (Void), no recibimos 'data', por lo que los paréntesis van vacíos
           next: () => {
             alert('Pesaje registrado con éxito');
             this.mostrarModalPeso = false;
             this.cargarParcialidades(this.cuentaSeleccionada.idCuenta);
           },
-          // ✅ Se agrega ': any'
           error: (err: any) => {
             console.error('Error al guardar peso', err);
             alert('Hubo un error al registrar el pesaje');
@@ -120,12 +119,10 @@ export class DashboardPesajeComponent implements OnInit {
   }
 
   generarBoleta(parcialidad: any): void {
-    // FA03: Recopilamos la información para la boleta
     this.datosBoleta = {
       fechaBoleta: new Date().toLocaleString(),
       usuario: this.username,
       cuenta: this.cuentaSeleccionada.idCuenta,
-      // Usamos el ID de cuenta como fallback si el backend aún no envía el idPesaje
       idPesaje: this.cuentaSeleccionada.idCuenta,
       idParcialidad: parcialidad.idParcialidad,
       placa: parcialidad.placa,
@@ -143,7 +140,6 @@ export class DashboardPesajeComponent implements OnInit {
   }
 
   imprimirBoleta(): void {
-    // Llama a la ventana de impresión nativa del navegador (Ctrl+P)
     window.print();
   }
 }
