@@ -15,6 +15,7 @@ import com.cafetito.exception.TransportistaInactivoException;
 import com.cafetito.repository.ParcialidadRepository;
 import com.cafetito.repository.TransporteRepository;
 import com.cafetito.repository.TransportistaRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,10 @@ public class ParcialidadAdminService {
     private static final int QR_HEIGHT = 200;
     private static final String DETALLE_ESPERA = "Espera de ingreso";
     private static final String DETALLE_RECHAZADO = "Rechazado";
+
+
+    @Value("${cafetito.frontend.url:https://cafetito-front.onrender.com}")
+    private String frontendUrl;
 
     private final ParcialidadRepository parcialidadRepository;
     private final TransporteRepository transporteRepository;
@@ -51,20 +56,18 @@ public class ParcialidadAdminService {
         dto.setIdParcialidad(p.getIdParcialidad());
         dto.setAceptado(p.getAceptado());
 
-        String qrContent = "CUENTA:" + p.getIdCuenta().getIdCuenta() + ":PARCIALIDAD:" + p.getIdParcialidad();
-        dto.setQrCode(generarQRBase64(qrContent));
+        //Armamos la URL exacta hacia la ruta de tu frontend en Angular
+        String qrContent = frontendUrl + "/dashboard/administrador/cuentas/"
+                + p.getIdCuenta().getIdCuenta()
+                + "/parcialidades/"
+                + p.getIdParcialidad();
 
-        // ✅ Corregido: p.getIdTransporte() ya es Long, se usa directo
-        // Dentro de ParcialidadAdminService.java, busca la línea ~58 y déjala así:
+        dto.setQrCode(generarQRBase64(qrContent));
 
         Transporte t = transporteRepository.findById(p.getIdTransporte()).orElse(null);
         if (t != null) {
             ParcialidadDetalleResponseDTO.TransporteResumenDTO tr = new ParcialidadDetalleResponseDTO.TransporteResumenDTO();
-
-            // ✅ CORREGIDO: t.getPlaca() ya tiene la placa completa.
-            // Eliminamos el t.getTipoPlaca() que daba error de compilación.
             tr.setPlaca(t.getPlaca());
-
             tr.setEstado(t.getActivo());
             tr.setObservaciones(t.getObservaciones());
             dto.setTransporte(tr);
@@ -104,7 +107,7 @@ public class ParcialidadAdminService {
         Transporte t = transporteRepository.findById(p.getIdTransporte())
                 .orElseThrow(() -> new RuntimeException("Transporte no encontrado"));
 
-        // ✅ Validación FA17: Transporte Activo
+        // Validación FA17: Transporte Activo
         if (!Boolean.TRUE.equals(t.getActivo())) {
             throw new TransporteInactivoException(t.getPlaca());
         }
@@ -136,8 +139,6 @@ public class ParcialidadAdminService {
 
     private String generarQRBase64(String content) {
         try {
-            // Borramos el objeto nulo y la variable sin uso.
-            // Solo necesitamos convertir el 'content' que recibimos a QR.
             QRCodeWriter writer = new QRCodeWriter();
             BitMatrix bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, QR_WIDTH, QR_HEIGHT);
 
